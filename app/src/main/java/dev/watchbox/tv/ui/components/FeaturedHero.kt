@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -88,8 +89,8 @@ fun FeaturedHero(
                 overflow = TextOverflow.Ellipsis,
             )
             Spacer(modifier = Modifier.height(8.dp))
-            // Metadata
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            // Metadata row with badges
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 movie.year?.let {
                     Text(
                         text = it.toString(),
@@ -103,6 +104,51 @@ fun FeaturedHero(
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White.copy(alpha = 0.8f),
                     )
+                }
+                movie.quality?.let { quality ->
+                    Text(
+                        text = quality,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.White,
+                        modifier = Modifier
+                            .background(Color(0xFFE65100), RoundedCornerShape(4.dp))
+                            .padding(horizontal = 6.dp, vertical = 2.dp),
+                    )
+                }
+                movie.lang?.let { lang ->
+                    val label = when {
+                        lang.contains("Vietsub", ignoreCase = true) -> "Vietsub"
+                        lang.contains("Thuyết Minh", ignoreCase = true) -> "TM"
+                        lang.contains("Lồng Tiếng", ignoreCase = true) -> "LT"
+                        else -> lang
+                    }
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.White,
+                        modifier = Modifier
+                            .background(Color(0xFF1976D2), RoundedCornerShape(4.dp))
+                            .padding(horizontal = 6.dp, vertical = 2.dp),
+                    )
+                }
+            }
+            // Categories as small tags
+            if (movie.categories.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    movie.categories.take(4).forEach { category ->
+                        Text(
+                            text = category,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White.copy(alpha = 0.9f),
+                            modifier = Modifier
+                                .background(
+                                    Color.White.copy(alpha = 0.2f),
+                                    RoundedCornerShape(4.dp),
+                                )
+                                .padding(horizontal = 6.dp, vertical = 2.dp),
+                        )
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(12.dp))

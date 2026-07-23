@@ -30,6 +30,9 @@
     <string name="search_hint">Enter movie name…</string>
 
     <!-- Details -->
-    <string name="source_label">Source</string>
-    <string name="license_label">License</string>
+    <string name="episodes_label">Episodes</string>
+    <string name="cast_label">Cast</string>
+    <string name="country_label">Country</string>
+    <string name="category_label">Category</string>
+    <string name="quality_label">Quality</string>
 </resources>

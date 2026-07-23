@@ -1,5 +1,6 @@
 package dev.watchbox.tv.data.catalog
 
+import dev.watchbox.tv.core.model.Episode
 import dev.watchbox.tv.core.model.LicenseInfo
 import dev.watchbox.tv.core.model.Movie
 import dev.watchbox.tv.core.model.MovieDetails
@@ -41,15 +42,20 @@ class PhimApiCatalogSource(
             artworkUrl = posterUrl,
             backdropUrl = thumbUrl.ifBlank { posterUrl },
             year = year,
-            runtimeMinutes = null,
+            runtimeMinutes = parseRuntime(time),
             sourceName = SOURCE_NAME,
             license = phimApiLicense,
+            lang = lang.ifBlank { null },
+            quality = quality.ifBlank { null },
+            episodeCurrent = episodeCurrent.ifBlank { null },
+            categories = category.map { it.name }.filter { it.isNotBlank() },
+            country = country.firstOrNull()?.name,
         )
     }
 
     private fun mapDetails(
         movie: PhimApiMovieDto,
-        episodes: List<PhimApiEpisodeServerDto>,
+        episodeServers: List<PhimApiEpisodeServerDto>,
     ): MovieDetails? {
         if (movie.slug.isBlank() || movie.name.isBlank()) return null
 
@@ -57,17 +63,28 @@ class PhimApiCatalogSource(
             movie.originName.ifBlank { movie.name }
         }
 
-        val playbackSources = episodes.firstOrNull()?.serverData
+        val allEpisodes = episodeServers.firstOrNull()?.serverData
             ?.filter { it.linkM3u8.isNotBlank() }
-            ?.map { episode ->
-                PlaybackSource(
-                    url = episode.linkM3u8,
-                    mimeType = "application/x-mpegURL",
-                    qualityLabel = movie.quality.ifBlank { null },
+            ?.map { ep ->
+                Episode(
+                    name = ep.name,
+                    slug = ep.slug,
+                    streamUrl = ep.linkM3u8,
                 )
             }.orEmpty()
 
+        val playbackSources = allEpisodes.take(1).map { ep ->
+            PlaybackSource(
+                url = ep.streamUrl,
+                mimeType = "application/x-mpegURL",
+                qualityLabel = movie.quality.ifBlank { null },
+            )
+        }
+
         val subtitleTracks = buildSubtitleInfo(movie.lang)
+
+        val categories = movie.category.map { it.name }.filter { it.isNotBlank() }
+        val country = movie.country.firstOrNull()?.name
 
         return MovieDetails(
             movie = Movie(
@@ -81,15 +98,19 @@ class PhimApiCatalogSource(
                 runtimeMinutes = null,
                 sourceName = SOURCE_NAME,
                 license = phimApiLicense,
+                lang = movie.lang.ifBlank { null },
+                quality = movie.quality.ifBlank { null },
+                categories = categories,
+                country = country,
             ),
             playbackSources = playbackSources,
             subtitleTracks = subtitleTracks,
+            actors = movie.actor.filter { it.isNotBlank() },
+            episodes = allEpisodes,
         )
     }
 
     private fun buildSubtitleInfo(lang: String): List<SubtitleTrack> {
-        // PhimApi "lang" field indicates embedded subtitle type, not an external track URL.
-        // We surface it as metadata so the UI can display the subtitle language info.
         return when {
             lang.contains("Vietsub", ignoreCase = true) -> listOf(
                 SubtitleTrack(
@@ -129,6 +150,7 @@ class PhimApiCatalogSource(
         )
 
         private val htmlTagRegex = Regex("<[^>]*>")
+        private val runtimeRegex = Regex("(\\d+)\\s*[Pp]hút")
 
         fun stripHtml(html: String): String =
             html.replace(htmlTagRegex, "")
@@ -139,5 +161,11 @@ class PhimApiCatalogSource(
                 .replace("&quot;", "\"")
                 .replace("&#39;", "'")
                 .trim()
+
+        fun parseRuntime(time: String): Int? {
+            if (time.isBlank()) return null
+            val match = runtimeRegex.find(time) ?: return null
+            return match.groupValues[1].toIntOrNull()
+        }
     }
 }

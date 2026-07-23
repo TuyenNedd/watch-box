@@ -14,7 +14,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -90,7 +94,9 @@ fun DetailsScreen(
                     Spacer(modifier = Modifier.width(32.dp))
                     // Info
                     Column(
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f)
+                            .verticalScroll(rememberScrollState()),
                     ) {
                         Text(
                             text = movie.title,
@@ -118,8 +124,44 @@ fun DetailsScreen(
                             movie.runtimeMinutes?.let {
                                 SuggestionChip(onClick = {}) { Text("${it} min") }
                             }
-                            SuggestionChip(onClick = {}) { Text(movie.sourceName) }
-                            SuggestionChip(onClick = {}) { Text(movie.license.name) }
+                            movie.quality?.let {
+                                SuggestionChip(onClick = {}) {
+                                    Text(stringResource(R.string.quality_label) + ": $it")
+                                }
+                            }
+                            movie.lang?.let {
+                                SuggestionChip(onClick = {}) { Text(it) }
+                            }
+                        }
+                        // Categories as chips
+                        if (movie.categories.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                text = stringResource(R.string.category_label),
+                                style = MaterialTheme.typography.titleSmall,
+                                color = Color.White.copy(alpha = 0.8f),
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            FlowRow(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                movie.categories.forEach { category ->
+                                    SuggestionChip(onClick = {}) { Text(category) }
+                                }
+                            }
+                        }
+                        // Country chip
+                        movie.country?.let { country ->
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text(
+                                    text = stringResource(R.string.country_label) + ":",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    color = Color.White.copy(alpha = 0.8f),
+                                )
+                                SuggestionChip(onClick = {}) { Text(country) }
+                            }
                         }
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
@@ -147,18 +189,43 @@ fun DetailsScreen(
                                 Text(text = favText)
                             }
                         }
-                        Spacer(modifier = Modifier.height(16.dp))
-                        // Source / License info
-                        Text(
-                            text = "${stringResource(R.string.source_label)}: ${movie.license.sourceUrl}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.White.copy(alpha = 0.6f),
-                        )
-                        Text(
-                            text = "${stringResource(R.string.license_label)}: ${movie.license.name}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.White.copy(alpha = 0.6f),
-                        )
+                        // Episode list if series
+                        if (details.episodes.size > 1) {
+                            Spacer(modifier = Modifier.height(24.dp))
+                            Text(
+                                text = stringResource(R.string.episodes_label),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = Color.White,
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            LazyRow(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                items(details.episodes) { episode ->
+                                    SuggestionChip(onClick = {}) {
+                                        Text(episode.name)
+                                    }
+                                }
+                            }
+                        }
+                        // Actor list
+                        if (details.actors.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(24.dp))
+                            Text(
+                                text = stringResource(R.string.cast_label),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = Color.White,
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            FlowRow(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                details.actors.forEach { actor ->
+                                    SuggestionChip(onClick = {}) { Text(actor) }
+                                }
+                            }
+                        }
                     }
                 }
             }

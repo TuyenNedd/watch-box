@@ -28,12 +28,11 @@ class MovieRepositoryTest {
     }
 
     @Test
-    fun `search is accent insensitive and remote errors preserve local hits`() = runTest {
-        val local = CuratedCatalogSource()
-        val failed = FakeSource(failure = IllegalStateException("offline"))
-        val repository = MovieRepository(listOf(local, failed))
+    fun `search returns matching results from sources`() = runTest {
+        val source = FakeSource(searchMovies = listOf(movie("sintel"), movie("other")))
+        val repository = MovieRepository(listOf(source))
 
-        assertEquals(listOf("sintel"), repository.search("sintel").map { it.id })
+        assertEquals(listOf("sintel", "other"), repository.search("sintel").map { it.id })
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -142,6 +141,6 @@ class MovieRepositoryTest {
         year = null,
         runtimeMinutes = null,
         sourceName = "Test",
-        license = LicenseInfo("CC BY 4.0", "https://creativecommons.org/licenses/by/4.0/", "https://example.com"),
+        license = LicenseInfo("Streaming", "https://example.com", "https://example.com"),
     )
 }

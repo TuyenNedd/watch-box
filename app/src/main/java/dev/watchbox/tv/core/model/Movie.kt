@@ -15,12 +15,25 @@ data class Movie(
     val runtimeMinutes: Int? = null,
     val sourceName: String,
     val license: LicenseInfo,
+    val lang: String? = null,
+    val quality: String? = null,
+    val episodeCurrent: String? = null,
+    val categories: List<String> = emptyList(),
+    val country: String? = null,
+)
+
+data class Episode(
+    val name: String,
+    val slug: String,
+    val streamUrl: String,
 )
 
 data class MovieDetails(
     val movie: Movie,
     val playbackSources: List<PlaybackSource> = emptyList(),
     val subtitleTracks: List<SubtitleTrack> = emptyList(),
+    val actors: List<String> = emptyList(),
+    val episodes: List<Episode> = emptyList(),
 )
 
 data class PlaybackSource(

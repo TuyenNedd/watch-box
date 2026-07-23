@@ -3,10 +3,6 @@ package dev.watchbox.tv
 import android.app.Application
 import android.content.Context
 import dev.watchbox.tv.data.catalog.CatalogSource
-import dev.watchbox.tv.data.catalog.CuratedCatalogSource
-import dev.watchbox.tv.data.catalog.InternetArchiveCatalogSource
-import dev.watchbox.tv.data.catalog.InternetArchiveClient
-import dev.watchbox.tv.data.catalog.InternetArchiveMapper
 import dev.watchbox.tv.data.catalog.MovieRepository
 import dev.watchbox.tv.data.catalog.OPhimCatalogSource
 import dev.watchbox.tv.data.catalog.OPhimClient
@@ -35,14 +31,10 @@ class WatchBoxApplication : Application() {
 
         val phimApiClient = PhimApiClient(httpClient)
         val oPhimClient = OPhimClient(httpClient)
-        val archiveClient = InternetArchiveClient(httpClient)
-        val mapper = InternetArchiveMapper()
 
         val sources: List<CatalogSource> = listOf(
             PhimApiCatalogSource(phimApiClient),
             OPhimCatalogSource(oPhimClient),
-            CuratedCatalogSource(),
-            InternetArchiveCatalogSource(archiveClient, mapper),
         )
 
         repository = MovieRepository(sources)

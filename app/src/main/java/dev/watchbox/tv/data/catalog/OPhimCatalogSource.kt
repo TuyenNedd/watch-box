@@ -1,5 +1,6 @@
 package dev.watchbox.tv.data.catalog
 
+import dev.watchbox.tv.core.model.Episode
 import dev.watchbox.tv.core.model.LicenseInfo
 import dev.watchbox.tv.core.model.Movie
 import dev.watchbox.tv.core.model.MovieDetails
@@ -45,6 +46,9 @@ class OPhimCatalogSource(
             runtimeMinutes = parseRuntime(time),
             sourceName = SOURCE_NAME,
             license = ophimLicense,
+            lang = lang.ifBlank { null },
+            quality = quality.ifBlank { null },
+            episodeCurrent = episodeCurrent.ifBlank { null },
         )
     }
 
@@ -55,15 +59,23 @@ class OPhimCatalogSource(
             movie.originName.ifBlank { movie.name }
         }
 
-        val playbackSources = movie.episodes.firstOrNull()?.serverData
+        val allEpisodes = movie.episodes.firstOrNull()?.serverData
             ?.filter { it.linkM3u8.isNotBlank() }
-            ?.map { episode ->
-                PlaybackSource(
-                    url = episode.linkM3u8,
-                    mimeType = "application/x-mpegURL",
-                    qualityLabel = movie.quality.ifBlank { null },
+            ?.map { ep ->
+                Episode(
+                    name = ep.name,
+                    slug = ep.slug,
+                    streamUrl = ep.linkM3u8,
                 )
             }.orEmpty()
+
+        val playbackSources = allEpisodes.take(1).map { ep ->
+            PlaybackSource(
+                url = ep.streamUrl,
+                mimeType = "application/x-mpegURL",
+                qualityLabel = movie.quality.ifBlank { null },
+            )
+        }
 
         val subtitleTracks = buildSubtitleInfo(movie.lang)
 
@@ -79,9 +91,13 @@ class OPhimCatalogSource(
                 runtimeMinutes = null,
                 sourceName = SOURCE_NAME,
                 license = ophimLicense,
+                lang = movie.lang.ifBlank { null },
+                quality = movie.quality.ifBlank { null },
             ),
             playbackSources = playbackSources,
             subtitleTracks = subtitleTracks,
+            actors = movie.actor.filter { it.isNotBlank() },
+            episodes = allEpisodes,
         )
     }
 

@@ -29,6 +29,12 @@ data class PhimApiItemDto(
     @SerialName("poster_url") val posterUrl: String = "",
     @SerialName("thumb_url") val thumbUrl: String = "",
     val year: Int? = null,
+    val lang: String = "",
+    val quality: String = "",
+    @SerialName("episode_current") val episodeCurrent: String = "",
+    val time: String = "",
+    val category: List<PhimApiCategoryDto> = emptyList(),
+    val country: List<PhimApiCountryDto> = emptyList(),
 )
 
 // --- DTOs for detail endpoint ---

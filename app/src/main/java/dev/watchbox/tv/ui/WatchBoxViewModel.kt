@@ -50,7 +50,7 @@ class WatchBoxViewModel(
 
     private data class InternalState(
         val featured: List<Movie> = emptyList(),
-        val archive: List<Movie> = emptyList(),
+        val backup: List<Movie> = emptyList(),
         val searchResults: List<Movie> = emptyList(),
         val selectedDetails: MovieDetails? = null,
         val isLoading: Boolean = true,
@@ -69,7 +69,7 @@ class WatchBoxViewModel(
         libraryStore.favoriteIds,
         libraryStore.progress,
     ) { state, favIds, progressMap ->
-        val shelves = buildShelves(state.featured, state.archive, favIds, progressMap)
+        val shelves = buildShelves(state.featured, state.backup, favIds, progressMap)
         WatchBoxUiState(
             shelves = shelves,
             searchResults = state.searchResults,
@@ -150,12 +150,12 @@ class WatchBoxViewModel(
                 }
                 return@launch
             }
-            // Load archive async
+            // Load backup (OPhim deduplicated) async
             try {
-                val archive = repository.search("")
-                internal.update { it.copy(archive = archive) }
+                val backup = repository.search("")
+                internal.update { it.copy(backup = backup) }
             } catch (_: Exception) {
-                // Archive failure is non-critical
+                // Backup failure is non-critical
             }
         }
     }
@@ -175,7 +175,7 @@ class WatchBoxViewModel(
                     internal.update { it.copy(isSearching = true, searchError = null) }
                     try {
                         // Local search first (accent-insensitive)
-                        val allMovies = internal.value.featured + internal.value.archive
+                        val allMovies = internal.value.featured + internal.value.backup
                         val local = allMovies.filter { it.matchesSearch(query) }
                         internal.update { it.copy(searchResults = local) }
                         // Remote search
@@ -199,7 +199,7 @@ class WatchBoxViewModel(
 
     private fun buildShelves(
         featured: List<Movie>,
-        archive: List<Movie>,
+        backup: List<Movie>,
         favoriteIds: Set<String>,
         progressMap: Map<String, PlaybackProgress>,
     ): List<MovieShelf> {
@@ -207,10 +207,13 @@ class WatchBoxViewModel(
         if (featured.isNotEmpty()) {
             shelves += MovieShelf("New Movies", featured)
         }
-        if (archive.isNotEmpty()) {
-            shelves += MovieShelf("Open Movies", archive)
+        // Deduplicated backup from OPhim
+        val featuredIds = featured.map { it.id }.toSet()
+        val deduplicatedBackup = backup.filter { it.id !in featuredIds }
+        if (deduplicatedBackup.isNotEmpty()) {
+            shelves += MovieShelf("Featured", deduplicatedBackup)
         }
-        val continueWatching = (featured + archive)
+        val continueWatching = (featured + deduplicatedBackup)
             .filter { it.id in progressMap }
             .distinctBy { it.id }
         if (continueWatching.isNotEmpty()) {
