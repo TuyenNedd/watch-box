@@ -1,27 +1,34 @@
 # Watch Box
 
-**Free and open-licensed movie streaming app for Android TV**
+**Movie streaming app for Android TV & phones — with Vietsub & Thuyet Minh**
 
-Watch Box is a native Android TV application designed for TV Boxes. It is fully controllable via remote/D-pad and streams only Creative Commons / openly licensed movies with Vietnamese subtitle support.
+Watch Box is a native Android TV application that aggregates movies from multiple free sources with Vietnamese subtitles and dubbing. Works on TV Boxes (via LEANBACK_LAUNCHER) and phones/tablets (standard launcher).
 
 ---
 
 ## Features
 
-- **Discover movies** — Home screen with hero banner and horizontally scrollable shelves
-- **Search** — Vietnamese accent-insensitive search (diacritics removed automatically)
-- **Movie details** — Poster, synopsis, metadata, source & license clearly displayed
-- **Favorites** — Save favorite movies offline
-- **Continue watching** — Automatically saves progress, resume from where you left off
-- **Media3 player** — MP4/HLS playback with subtitle support and D-pad controls
-- **Internet Archive** — Search licensed movies from the community library
-- **Vietnamese UI** — App interface in Vietnamese for end users
+- **New movies daily** — Latest releases with Vietsub, Thuyet Minh, and Long Tieng from PhimAPI & OPhim
+- **Multi-source fallback** — If one source goes down, others keep working seamlessly
+- **Smart search** — Vietnamese accent-insensitive (works with/without diacritics)
+- **Movie details** — Poster, synopsis, actors, categories, quality badge, source info
+- **Favorites** — Save movies offline, no account needed
+- **Continue watching** — Auto-saves progress, resume where you left off
+- **Media3 player** — HLS/MP4 playback with D-pad controls and subtitle support
+- **Works on both TV and phone** — TV launcher + standard Android launcher
+- **Vietnamese UI** — Auto-detected based on device language (English fallback)
+- **Open movies** — Bonus collection of Creative Commons films (always available offline)
 
 ---
 
-## Screenshots
+## Movie Sources
 
-> The app is optimized for TV with a cinematic dark theme (navy background), coral accent, large typography, and clear D-pad focus indicators.
+| # | Source | Content | Fallback |
+|---|--------|---------|----------|
+| 1 | [PhimAPI](https://phimapi.com) (KKPhim) | New movies, Vietsub/Thuyet Minh, HD/FHD, HLS streams | Primary |
+| 2 | [OPhim](https://ophim1.com) | Same catalog, different stream servers | Backup |
+| 3 | Curated (Blender Foundation) | Big Buck Bunny, Sintel, Tears of Steel, Elephant's Dream | Always available |
+| 4 | [Internet Archive](https://archive.org) | Community library with CC license | Additional |
 
 ---
 
@@ -29,12 +36,12 @@ Watch Box is a native Android TV application designed for TV Boxes. It is fully 
 
 ### From Release (recommended)
 
-1. Download `watch-box-v1.0.0-release.apk` from [Releases](https://github.com/TuyenNedd/watch-box/releases)
-2. Copy to USB or install via ADB:
+1. Download `watch-box-v1.0.1.apk` from [Releases](https://github.com/TuyenNedd/watch-box/releases)
+2. Install via ADB or copy to USB:
    ```bash
-   adb install watch-box-v1.0.0-release.apk
+   adb install watch-box-v1.0.1.apk
    ```
-3. Open **Watch Box** from the TV launcher
+3. Open **Watch Box** from TV launcher or phone home screen
 
 ### Build from source
 
@@ -56,46 +63,38 @@ export JAVA_HOME=/path/to/jdk-17
 
 ---
 
-## Available Movies
-
-| Movie | Source | License |
-|-------|--------|---------|
-| Big Buck Bunny | Blender Foundation | CC BY 3.0 |
-| Sintel | Blender Foundation | CC BY 3.0 |
-| Tears of Steel | Blender Foundation | CC BY 3.0 |
-| Elephant's Dream | Blender Foundation | CC BY 2.5 |
-| + Internet Archive | Community library | Various CC |
-
----
-
 ## Architecture
 
 ```
 app/src/main/java/dev/watchbox/tv/
-├── WatchBoxApplication.kt          # App container (manual DI)
-├── MainActivity.kt                 # TV Activity + Compose entry
+├── WatchBoxApplication.kt             # App container (manual DI)
+├── MainActivity.kt                    # Activity + Compose entry
 ├── core/
-│   ├── model/Movie.kt              # Domain models
-│   └── util/TextNormalizer.kt      # Vietnamese search normalization
+│   ├── model/Movie.kt                 # Domain models
+│   └── util/TextNormalizer.kt         # Vietnamese search normalization
 ├── data/
 │   ├── catalog/
-│   │   ├── CatalogSource.kt        # Provider interface
-│   │   ├── CuratedCatalogSource.kt # 4 CC seed movies
-│   │   ├── InternetArchiveClient.kt# HTTP + JSON DTOs
-│   │   ├── InternetArchiveMapper.kt# Defensive mapping + stream ranking
-│   │   └── MovieRepository.kt      # Merge/dedupe/fallback
+│   │   ├── CatalogSource.kt           # Provider interface
+│   │   ├── PhimApiClient.kt           # PhimAPI HTTP client + DTOs
+│   │   ├── PhimApiCatalogSource.kt    # PhimAPI → CatalogSource
+│   │   ├── OPhimClient.kt             # OPhim HTTP client + DTOs
+│   │   ├── OPhimCatalogSource.kt      # OPhim → CatalogSource (backup)
+│   │   ├── CuratedCatalogSource.kt    # 4 CC seed movies
+│   │   ├── InternetArchiveClient.kt   # Archive.org HTTP + DTOs
+│   │   ├── InternetArchiveMapper.kt   # Defensive mapping + stream ranking
+│   │   └── MovieRepository.kt         # Merge/dedupe/fallback across sources
 │   └── local/
-│       ├── LibraryStore.kt          # Favorites/progress interface
+│       ├── LibraryStore.kt            # Favorites/progress interface
 │       └── PreferencesLibraryStore.kt # SharedPreferences implementation
 ├── ui/
-│   ├── WatchBoxViewModel.kt        # StateFlow state machine
-│   ├── WatchBoxApp.kt              # Navigation routes
-│   ├── theme/                       # Colors, Typography, Theme
-│   ├── components/                  # Hero, Card, Shelf, NavRail, States
-│   └── screens/                     # Home, Search, Library, Details
+│   ├── WatchBoxViewModel.kt           # StateFlow state machine
+│   ├── WatchBoxApp.kt                 # Navigation routes
+│   ├── theme/                          # Colors, Typography, Theme
+│   ├── components/                     # Hero, Card, Shelf, NavRail, States
+│   └── screens/                        # Home, Search, Library, Details
 └── player/
-    ├── MediaItemFactory.kt          # Build Media3 items (HTTPS only)
-    └── PlayerScreen.kt              # Fullscreen player + progress
+    ├── MediaItemFactory.kt            # Build Media3 items (HTTPS only)
+    └── PlayerScreen.kt                # Fullscreen player + progress
 ```
 
 ---
@@ -134,13 +133,17 @@ export JAVA_HOME=/path/to/jdk-17
 
 ---
 
-## Content Policy
+## How Sources Work
 
-Watch Box **only** uses openly licensed content:
-- Curated movies: Creative Commons from Blender Foundation
-- Internet Archive: Only records with an explicit `licenseurl`
-- Each movie displays its source and license on the details screen
-- No scraping, no pirated sources, no ads
+The app uses a **multi-source fallback** architecture:
+
+1. On launch, all sources are queried in parallel
+2. Results are merged and deduplicated by movie slug
+3. If a source fails (timeout, server down), others continue normally
+4. Curated movies are always available even without internet
+5. When viewing movie details, the app tries the source that listed the movie first
+
+This means the app stays functional even if PhimAPI or OPhim go offline.
 
 ---
 
@@ -152,6 +155,18 @@ Watch Box **only** uses openly licensed content:
 4. Push: `git push origin feat/your-feature`
 5. Open a Pull Request
 
+### Adding a new movie source
+
+Implement the `CatalogSource` interface and register it in `WatchBoxApplication.kt`:
+
+```kotlin
+interface CatalogSource {
+    suspend fun featured(): List<Movie>
+    suspend fun search(query: String): List<Movie>
+    suspend fun details(id: String): MovieDetails?
+}
+```
+
 ---
 
 ## License
@@ -162,7 +177,9 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 ## Credits
 
-- [Blender Foundation](https://www.blender.org/) — Open Movies
+- [PhimAPI](https://phimapi.com) — Vietnamese movie metadata & streams
+- [OPhim](https://ophim1.com) — Backup movie source
+- [Blender Foundation](https://www.blender.org/) — Open Movies (CC)
 - [Internet Archive](https://archive.org/) — Community media library
 - [AndroidX Media3](https://developer.android.com/media/media3) — Video playback
 - [Jetpack Compose for TV](https://developer.android.com/training/tv/playback/compose) — UI framework
