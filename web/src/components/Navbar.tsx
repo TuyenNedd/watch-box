@@ -3,10 +3,19 @@
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
+import { useSource, SourceType } from "@/lib/source-context";
+
+const SOURCE_OPTIONS: { value: SourceType; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "phimapi", label: "PhimAPI" },
+  { value: "ophim", label: "OPhim" },
+  { value: "nguonc", label: "NguonC" },
+];
 
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
+  const { source, setSource } = useSource();
   const [searchExpanded, setSearchExpanded] = useState(false);
   const [query, setQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -85,8 +94,24 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Right side: Search + Mobile menu */}
+        {/* Right side: Source selector + Search + Mobile menu */}
         <div className="flex items-center gap-3">
+          {/* Source Selector */}
+          <div className="hidden sm:flex items-center">
+            <select
+              value={source}
+              onChange={(e) => setSource(e.target.value as SourceType)}
+              className="bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-accent/50 focus:bg-white/10 transition-all cursor-pointer appearance-none pr-7"
+              style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239CA3AF'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 6px center', backgroundSize: '16px' }}
+            >
+              {SOURCE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value} className="bg-gray-900 text-white">
+                  {opt.value === "all" ? "Source: All" : opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Search - Expanding animation */}
           <div className="relative flex items-center">
             <form
@@ -158,10 +183,24 @@ export default function Navbar() {
       {/* Mobile menu */}
       <div
         className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out bg-background/95 backdrop-blur-xl border-b border-white/5 ${
-          mobileMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+          mobileMenuOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
         }`}
       >
         <div className="px-4 py-3 space-y-1">
+          {/* Mobile source selector */}
+          <div className="px-4 py-2.5 sm:hidden">
+            <select
+              value={source}
+              onChange={(e) => setSource(e.target.value as SourceType)}
+              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-accent/50"
+            >
+              {SOURCE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value} className="bg-gray-900 text-white">
+                  {opt.value === "all" ? "Source: All" : `Source: ${opt.label}`}
+                </option>
+              ))}
+            </select>
+          </div>
           {navLinks.map((link) => (
             <Link
               key={link.href}

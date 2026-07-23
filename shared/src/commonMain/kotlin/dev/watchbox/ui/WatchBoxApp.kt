@@ -87,6 +87,8 @@ fun WatchBoxApp(
                         isLoading = uiState.isLoadingDetails,
                         isFavorite = isFavorite,
                         progress = uiState.progress[selectedMovieId],
+                        availableServers = uiState.availableServers,
+                        activeServerIndex = uiState.activeServerIndex,
                         onPlay = {
                             selectedEpisodeIndex = 0
                             currentScreen = Screen.PLAYER
@@ -96,6 +98,7 @@ fun WatchBoxApp(
                             currentScreen = Screen.PLAYER
                         },
                         onToggleFavorite = { viewModel.toggleFavorite(selectedMovieId) },
+                        onSwitchServer = { index -> viewModel.switchServer(index) },
                         onBack = { currentScreen = Screen.HOME },
                     )
                 }
@@ -104,7 +107,7 @@ fun WatchBoxApp(
                         browseState = uiState.browseState,
                         onMovieClick = { id ->
                             selectedMovieId = id
-                            viewModel.loadDetails(id)
+                            viewModel.loadDetailsFromAllSources(id)
                             currentScreen = Screen.DETAILS
                         },
                         onPreviousPage = {
@@ -123,7 +126,7 @@ fun WatchBoxApp(
                         browseState = uiState.browseState,
                         onMovieClick = { id ->
                             selectedMovieId = id
-                            viewModel.loadDetails(id)
+                            viewModel.loadDetailsFromAllSources(id)
                             currentScreen = Screen.DETAILS
                         },
                         onPreviousPage = {
@@ -142,7 +145,7 @@ fun WatchBoxApp(
                         browseState = uiState.browseState,
                         onMovieClick = { id ->
                             selectedMovieId = id
-                            viewModel.loadDetails(id)
+                            viewModel.loadDetailsFromAllSources(id)
                             currentScreen = Screen.DETAILS
                         },
                         onPreviousPage = {
@@ -196,12 +199,12 @@ fun WatchBoxApp(
                                     uiState = uiState,
                                     onMovieClick = { id ->
                                         selectedMovieId = id
-                                        viewModel.loadDetails(id)
+                                        viewModel.loadDetailsFromAllSources(id)
                                         currentScreen = Screen.DETAILS
                                     },
                                     onPlayClick = { id ->
                                         selectedMovieId = id
-                                        viewModel.loadDetails(id)
+                                        viewModel.loadDetailsFromAllSources(id)
                                         selectedEpisodeIndex = 0
                                         currentScreen = Screen.PLAYER
                                     },
@@ -210,6 +213,9 @@ fun WatchBoxApp(
                                         browseType = type
                                         viewModel.loadByType(type)
                                         currentScreen = Screen.BROWSE_TYPE
+                                    },
+                                    onSourceSelected = { source ->
+                                        viewModel.setSelectedSource(source)
                                     },
                                     modifier = Modifier.fillMaxSize(),
                                 )
@@ -234,7 +240,7 @@ fun WatchBoxApp(
                                     onQueryChanged = { viewModel.onSearchQueryChanged(it) },
                                     onMovieClick = { id ->
                                         selectedMovieId = id
-                                        viewModel.loadDetails(id)
+                                        viewModel.loadDetailsFromAllSources(id)
                                         currentScreen = Screen.DETAILS
                                     },
                                     onRetry = { viewModel.retry() },
@@ -247,7 +253,7 @@ fun WatchBoxApp(
                                         allMovies = allMovies,
                                         onMovieClick = { id ->
                                             selectedMovieId = id
-                                            viewModel.loadDetails(id)
+                                            viewModel.loadDetailsFromAllSources(id)
                                             currentScreen = Screen.DETAILS
                                         },
                                         modifier = Modifier.fillMaxSize(),

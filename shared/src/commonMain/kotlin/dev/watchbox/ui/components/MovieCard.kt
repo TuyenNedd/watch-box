@@ -102,6 +102,29 @@ fun MovieCard(
                             .padding(horizontal = 4.dp, vertical = 2.dp),
                     )
                 }
+                // Source badge
+                val sourceColor = when {
+                    movie.sourceName.contains("PhimAPI", ignoreCase = true) -> Color(0xFFFF6B5E)
+                    movie.sourceName.contains("OPhim", ignoreCase = true) -> Color(0xFF3B82F6)
+                    movie.sourceName.contains("NguonC", ignoreCase = true) -> Color(0xFF10B981)
+                    else -> Color(0xFF6B7280)
+                }
+                val sourceLabel = when {
+                    movie.sourceName.contains("PhimAPI", ignoreCase = true) -> "PhimApi"
+                    movie.sourceName.contains("OPhim", ignoreCase = true) -> "OPhim"
+                    movie.sourceName.contains("NguonC", ignoreCase = true) -> "NguonC"
+                    else -> movie.sourceName
+                }
+                Text(
+                    text = sourceLabel,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.White,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(6.dp)
+                        .background(sourceColor, RoundedCornerShape(4.dp))
+                        .padding(horizontal = 4.dp, vertical = 2.dp),
+                )
             }
         }
         Text(

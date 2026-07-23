@@ -20,7 +20,7 @@ data class CatalogResult<T>(
 )
 
 class MovieRepository(
-    private val sources: List<CatalogSource>,
+    val sources: List<CatalogSource>,
 ) {
     fun featuredStates(): Flow<CatalogResult<List<Movie>>> = mergeStates { it.featured() }
 

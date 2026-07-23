@@ -11,6 +11,18 @@ interface WatchPageProps {
   params: Promise<{ slug: string }>;
 }
 
+interface SourceServer {
+  name: string;
+  source: "phimapi" | "ophim" | "nguonc";
+  data: MovieDetail;
+}
+
+const SOURCE_BADGE_COLORS: Record<string, string> = {
+  phimapi: "bg-[#FF6B5E]",
+  ophim: "bg-[#3B82F6]",
+  nguonc: "bg-[#10B981]",
+};
+
 export default function WatchPage({ params }: WatchPageProps) {
   const searchParams = useSearchParams();
   const [slug, setSlug] = useState<string>("");
@@ -18,6 +30,8 @@ export default function WatchPage({ params }: WatchPageProps) {
   const [loading, setLoading] = useState(true);
   const [currentEp, setCurrentEp] = useState(0);
   const [currentServer, setCurrentServer] = useState(0);
+  const [availableServers, setAvailableServers] = useState<SourceServer[]>([]);
+  const [activeSourceIdx, setActiveSourceIdx] = useState(0);
 
   useEffect(() => {
     params.then((p) => setSlug(p.slug));
@@ -31,14 +45,101 @@ export default function WatchPage({ params }: WatchPageProps) {
     if (epParam) setCurrentEp(parseInt(epParam));
     if (svParam) setCurrentServer(parseInt(svParam));
 
-    fetch(`/api/phim/${slug}`)
-      .then((res) => res.json())
-      .then((d) => {
-        setData(d);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+    // Fetch from all sources in parallel
+    const fetchAllSources = async () => {
+      const servers: SourceServer[] = [];
+
+      const [phimRes, nguoncRes, ophimRes] = await Promise.allSettled([
+        fetch(`/api/phim/${slug}`).then((r) => r.json()),
+        fetch(`/api/nguonc/film/${slug}`).then((r) => r.json()),
+        fetch(`/api/ophim/phim/${slug}`).then((r) => r.json()),
+      ]);
+
+      // PhimAPI
+      if (phimRes.status === "fulfilled" && phimRes.value?.movie) {
+        const d = phimRes.value as MovieDetail;
+        if (d.episodes?.length > 0 && d.episodes[0]?.server_data?.length > 0) {
+          servers.push({ name: "PhimAPI Server", source: "phimapi", data: d });
+        }
+      }
+
+      // OPhim
+      if (ophimRes.status === "fulfilled") {
+        const raw = ophimRes.value;
+        if (raw?.movie && raw?.episodes?.length > 0) {
+          const ophimData: MovieDetail = {
+            movie: raw.movie,
+            episodes: raw.episodes,
+          };
+          if (ophimData.episodes[0]?.server_data?.length > 0) {
+            servers.push({ name: "OPhim Server", source: "ophim", data: ophimData });
+          }
+        }
+      }
+
+      // NguonC - transform to MovieDetail format
+      if (nguoncRes.status === "fulfilled") {
+        const raw = nguoncRes.value;
+        if (raw?.status === "success" && raw?.movie?.episodes?.length > 0) {
+          const ngMovie = raw.movie;
+          const nguoncDetail: MovieDetail = {
+            movie: {
+              _id: ngMovie.slug,
+              name: ngMovie.name,
+              slug: ngMovie.slug,
+              origin_name: ngMovie.original_name || "",
+              content: ngMovie.description || "",
+              type: "",
+              status: "",
+              poster_url: ngMovie.poster_url || "",
+              thumb_url: ngMovie.thumb_url || "",
+              sub_docquyen: false,
+              time: "",
+              episode_current: ngMovie.current_episode || "",
+              episode_total: "",
+              quality: ngMovie.quality || "",
+              lang: ngMovie.language || "",
+              year: ngMovie.year || 0,
+              actor: [],
+              director: [],
+              category: (ngMovie.category || []).map((c: any) => ({ id: c.slug, name: c.name, slug: c.slug })),
+              country: (ngMovie.country || []).map((c: any) => ({ id: c.slug, name: c.name, slug: c.slug })),
+              trailer_url: "",
+            },
+            episodes: ngMovie.episodes.map((ep: any) => ({
+              server_name: ep.server_name,
+              server_data: (ep.items || []).map((item: any) => ({
+                name: item.name,
+                slug: item.slug,
+                filename: "",
+                link_embed: item.embed || "",
+                link_m3u8: item.m3u8 || "",
+              })),
+            })),
+          };
+          if (nguoncDetail.episodes[0]?.server_data?.length > 0) {
+            servers.push({ name: "NguonC Server", source: "nguonc", data: nguoncDetail });
+          }
+        }
+      }
+
+      setAvailableServers(servers);
+      if (servers.length > 0) {
+        setData(servers[0].data);
+        setActiveSourceIdx(0);
+      }
+      setLoading(false);
+    };
+
+    fetchAllSources();
   }, [slug, searchParams]);
+
+  const handleSourceSwitch = (idx: number) => {
+    setActiveSourceIdx(idx);
+    setData(availableServers[idx].data);
+    setCurrentServer(0);
+    setCurrentEp(0);
+  };
 
   if (loading) {
     return (
@@ -159,7 +260,30 @@ export default function WatchPage({ params }: WatchPageProps) {
           )}
         </div>
 
-        {/* Server Selector */}
+        {/* Source/Server Switch */}
+        {availableServers.length > 1 && (
+          <div className="mt-6">
+            <p className="text-sm text-gray-500 mb-2 font-medium">Switch Source:</p>
+            <div className="flex gap-2 flex-wrap">
+              {availableServers.map((server, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleSourceSwitch(idx)}
+                  className={`px-4 py-2 rounded-lg text-sm transition-all duration-200 flex items-center gap-2 ${
+                    activeSourceIdx === idx
+                      ? "bg-accent text-white shadow-lg shadow-accent/20"
+                      : "glass text-gray-300 hover:bg-white/10"
+                  }`}
+                >
+                  <span className={`w-2 h-2 rounded-full ${SOURCE_BADGE_COLORS[server.source]}`} />
+                  {server.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Server Selector (within current source) */}
         {episodes.length > 1 && (
           <div className="mt-6">
             <p className="text-sm text-gray-500 mb-2 font-medium">Server:</p>

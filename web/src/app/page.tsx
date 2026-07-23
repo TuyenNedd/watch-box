@@ -1,6 +1,4 @@
-import HeroSection from "@/components/HeroSection";
-import MovieShelf from "@/components/MovieShelf";
-import Footer from "@/components/Footer";
+import HomeContent from "@/components/HomeContent";
 import { Movie, MovieListResponse } from "@/types/movie";
 import { NguonCItem, NguonCListResponse } from "@/lib/api";
 
@@ -81,6 +79,7 @@ function nguoncToMovie(item: NguonCItem): Movie {
     year: item.year || 0,
     category: (item.category || []).map((c) => ({ id: c.slug, name: c.name, slug: c.slug })),
     country: (item.country || []).map((c) => ({ id: c.slug, name: c.name, slug: c.slug })),
+    source: "nguonc",
   };
 }
 
@@ -94,44 +93,35 @@ export default async function Home() {
     getNguonCMovies().catch(() => ({ status: "error", paginate: null, items: [] } as NguonCListResponse)),
   ]);
 
-  const allMovies = data1.items || [];
-  const moreMovies = data2.items || [];
+  const allMovies = (data1.items || []).map((m) => ({ ...m, source: "phimapi" as const }));
+  const moreMovies = (data2.items || []).map((m) => ({ ...m, source: "phimapi" as const }));
 
-  const singleMovies = extractItems(singleData).slice(0, 12);
-  const seriesMovies = extractItems(seriesData).slice(0, 12);
-  const animationMovies = extractItems(animationData).slice(0, 12);
+  const singleMovies = extractItems(singleData).slice(0, 12).map((m) => ({ ...m, source: "phimapi" as const }));
+  const seriesMovies = extractItems(seriesData).slice(0, 12).map((m) => ({ ...m, source: "phimapi" as const }));
+  const animationMovies = extractItems(animationData).slice(0, 12).map((m) => ({ ...m, source: "phimapi" as const }));
 
   const nguoncMovies: Movie[] =
     nguoncData.status === "success" && nguoncData.items?.length > 0
       ? nguoncData.items.slice(0, 12).map(nguoncToMovie)
       : [];
 
-  const heroMovie = allMovies[0];
+  const heroMovie = allMovies[0] || null;
   const newMovies = allMovies.slice(1, 13);
   const trendingMovies = allMovies.slice(13, 25);
   const moreToWatch = moreMovies.slice(0, 12);
 
   return (
-    <div className="pt-16">
-      {heroMovie && <HeroSection movie={heroMovie} />}
-      <div className="max-w-7xl mx-auto py-10">
-        <MovieShelf title="New Releases" movies={newMovies} seeAllHref="/danh-sach/phim-le" />
-        <MovieShelf title="Trending Now" movies={trendingMovies} seeAllHref="/danh-sach/phim-bo" />
-        {singleMovies.length > 0 && (
-          <MovieShelf title="Movies" movies={singleMovies} seeAllHref="/danh-sach/phim-le" />
-        )}
-        {seriesMovies.length > 0 && (
-          <MovieShelf title="Series" movies={seriesMovies} seeAllHref="/danh-sach/phim-bo" />
-        )}
-        {animationMovies.length > 0 && (
-          <MovieShelf title="Animation" movies={animationMovies} seeAllHref="/danh-sach/hoat-hinh" />
-        )}
-        {nguoncMovies.length > 0 && (
-          <MovieShelf title="More Movies" movies={nguoncMovies} seeAllHref="/danh-sach/phim-le" />
-        )}
-        <MovieShelf title="You May Like" movies={moreToWatch} seeAllHref="/danh-sach/tv-shows" />
-      </div>
-      <Footer />
-    </div>
+    <HomeContent
+      serverData={{
+        heroMovie,
+        newMovies,
+        trendingMovies,
+        singleMovies,
+        seriesMovies,
+        animationMovies,
+        nguoncMovies,
+        moreToWatch,
+      }}
+    />
   );
 }

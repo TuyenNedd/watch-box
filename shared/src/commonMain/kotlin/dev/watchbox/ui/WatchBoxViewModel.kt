@@ -10,6 +10,7 @@ import dev.watchbox.data.catalog.PaginatedResult
 import dev.watchbox.data.local.LibraryStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -37,6 +38,18 @@ data class BrowseState(
     val error: String? = null,
 )
 
+enum class SourceFilter(val label: String) {
+    ALL("All"),
+    PHIMAPI("PhimAPI"),
+    OPHIM("OPhim"),
+    NGUONC("NguonC"),
+}
+
+data class SourcedDetails(
+    val source: SourceFilter,
+    val details: MovieDetails,
+)
+
 data class WatchBoxUiState(
     val shelves: List<MovieShelf> = emptyList(),
     val searchResults: List<Movie> = emptyList(),
@@ -53,6 +66,9 @@ data class WatchBoxUiState(
     val countries: List<CategoryItem> = emptyList(),
     val isLoadingGenres: Boolean = false,
     val isLoadingCountries: Boolean = false,
+    val selectedSource: SourceFilter = SourceFilter.ALL,
+    val availableServers: List<SourcedDetails> = emptyList(),
+    val activeServerIndex: Int = 0,
 )
 
 class WatchBoxViewModel(
@@ -75,6 +91,9 @@ class WatchBoxViewModel(
         val countries: List<CategoryItem> = emptyList(),
         val isLoadingGenres: Boolean = false,
         val isLoadingCountries: Boolean = false,
+        val selectedSource: SourceFilter = SourceFilter.ALL,
+        val availableServers: List<SourcedDetails> = emptyList(),
+        val activeServerIndex: Int = 0,
     )
 
     private val internal = MutableStateFlow(InternalState())
@@ -86,7 +105,9 @@ class WatchBoxViewModel(
         libraryStore.favoriteIds,
         libraryStore.progress,
     ) { state, favIds, progressMap ->
-        val shelves = buildShelves(state.featured, state.backup, favIds, progressMap)
+        val filteredFeatured = filterBySource(state.featured, state.selectedSource)
+        val filteredBackup = filterBySource(state.backup, state.selectedSource)
+        val shelves = buildShelves(filteredFeatured, filteredBackup, favIds, progressMap)
         WatchBoxUiState(
             shelves = shelves,
             searchResults = state.searchResults,
@@ -103,6 +124,9 @@ class WatchBoxViewModel(
             countries = state.countries,
             isLoadingGenres = state.isLoadingGenres,
             isLoadingCountries = state.isLoadingCountries,
+            selectedSource = state.selectedSource,
+            availableServers = state.availableServers,
+            activeServerIndex = state.activeServerIndex,
         )
     }.stateIn(scope, SharingStarted.Eagerly, WatchBoxUiState())
 
@@ -259,6 +283,62 @@ class WatchBoxViewModel(
         libraryStore.clearProgress(movieId)
     }
 
+    fun setSelectedSource(source: SourceFilter) {
+        internal.update { it.copy(selectedSource = source) }
+        // Reload catalog when source changes
+        loadCatalog()
+    }
+
+    fun loadDetailsFromAllSources(movieId: String) {
+        scope.launch {
+            internal.update { it.copy(isLoadingDetails = true, selectedDetails = null, availableServers = emptyList(), activeServerIndex = 0) }
+            val servers = mutableListOf<SourcedDetails>()
+            val sourceFilters = listOf(SourceFilter.PHIMAPI, SourceFilter.OPHIM, SourceFilter.NGUONC)
+
+            val deferreds = repository.sources.mapIndexed { index, source ->
+                async {
+                    try {
+                        val details = source.details(movieId)
+                        if (details != null && details.playbackSources.isNotEmpty()) {
+                            SourcedDetails(sourceFilters.getOrElse(index) { SourceFilter.ALL }, details)
+                        } else {
+                            null
+                        }
+                    } catch (_: Exception) {
+                        null
+                    }
+                }
+            }
+            deferreds.forEach { deferred ->
+                deferred.await()?.let { servers.add(it) }
+            }
+
+            val primaryDetails = servers.firstOrNull()?.details
+                ?: try { repository.detailsResult(movieId).data } catch (_: Exception) { null }
+
+            internal.update {
+                it.copy(
+                    selectedDetails = primaryDetails,
+                    isLoadingDetails = false,
+                    availableServers = servers,
+                    activeServerIndex = 0,
+                )
+            }
+        }
+    }
+
+    fun switchServer(index: Int) {
+        val servers = internal.value.availableServers
+        if (index in servers.indices) {
+            internal.update {
+                it.copy(
+                    selectedDetails = servers[index].details,
+                    activeServerIndex = index,
+                )
+            }
+        }
+    }
+
     fun retry() {
         internal.update { it.copy(error = null) }
         loadCatalog()
@@ -319,6 +399,17 @@ class WatchBoxViewModel(
                 }
             }
             .launchIn(scope)
+    }
+
+    private fun filterBySource(movies: List<Movie>, source: SourceFilter): List<Movie> {
+        if (source == SourceFilter.ALL) return movies
+        val sourceName = when (source) {
+            SourceFilter.PHIMAPI -> "PhimAPI"
+            SourceFilter.OPHIM -> "OPhim"
+            SourceFilter.NGUONC -> "NguonC"
+            else -> return movies
+        }
+        return movies.filter { it.sourceName.equals(sourceName, ignoreCase = true) }
     }
 
     private fun buildShelves(

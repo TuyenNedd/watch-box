@@ -7,6 +7,18 @@ interface MovieCardProps {
   movie: Movie;
 }
 
+const SOURCE_COLORS: Record<string, string> = {
+  phimapi: "bg-[#FF6B5E]",
+  ophim: "bg-[#3B82F6]",
+  nguonc: "bg-[#10B981]",
+};
+
+const SOURCE_LABELS: Record<string, string> = {
+  phimapi: "PhimApi",
+  ophim: "OPhim",
+  nguonc: "NguonC",
+};
+
 export default function MovieCard({ movie }: MovieCardProps) {
   return (
     <Link href={`/phim/${movie.slug}`} className="group block">
@@ -32,6 +44,15 @@ export default function MovieCard({ movie }: MovieCardProps) {
             </span>
           )}
         </div>
+
+        {/* Source badge */}
+        {movie.source && (
+          <div className="absolute bottom-2 left-2">
+            <span className={`${SOURCE_COLORS[movie.source] || "bg-gray-600"} backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded`}>
+              {SOURCE_LABELS[movie.source] || movie.source}
+            </span>
+          </div>
+        )}
 
         {/* Episode badge */}
         {movie.episode_current && (

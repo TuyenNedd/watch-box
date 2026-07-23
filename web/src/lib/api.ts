@@ -193,6 +193,115 @@ export async function getNguonCByCategory(slug: string, page: number = 1): Promi
   }
 }
 
+// --- OPhim functions (additional source) ---
+
+export interface OPhimListResponse {
+  status: string;
+  items?: OPhimItem[];
+  data?: {
+    items?: OPhimItem[];
+  };
+  paginate?: {
+    current_page: number;
+    total_page: number;
+    total_items: number;
+    items_per_page: number;
+  };
+  pagination?: {
+    totalItems: number;
+    totalItemsPerPage: number;
+    currentPage: number;
+    totalPages: number;
+  };
+}
+
+export interface OPhimItem {
+  _id: string;
+  name: string;
+  slug: string;
+  origin_name: string;
+  thumb_url: string;
+  poster_url: string;
+  type: string;
+  year: number;
+  quality: string;
+  lang: string;
+  episode_current: string;
+  category: { id: string; name: string; slug: string }[];
+  country: { id: string; name: string; slug: string }[];
+}
+
+export interface OPhimDetailResponse {
+  status: boolean | string;
+  movie?: {
+    _id: string;
+    name: string;
+    slug: string;
+    origin_name: string;
+    content: string;
+    type: string;
+    status: string;
+    poster_url: string;
+    thumb_url: string;
+    sub_docquyen: boolean;
+    time: string;
+    episode_current: string;
+    episode_total: string;
+    quality: string;
+    lang: string;
+    year: number;
+    actor: string[];
+    director: string[];
+    category: { id: string; name: string; slug: string }[];
+    country: { id: string; name: string; slug: string }[];
+    trailer_url: string;
+  };
+  episodes?: {
+    server_name: string;
+    server_data: {
+      name: string;
+      slug: string;
+      filename: string;
+      link_embed: string;
+      link_m3u8: string;
+    }[];
+  }[];
+}
+
+export async function getOPhimMovieList(page: number = 1): Promise<OPhimListResponse> {
+  try {
+    const res = await fetch(`${BASE_URL}/api/ophim/danh-sach/phim-moi-cap-nhat?page=${page}`, {
+      next: { revalidate: 300 },
+    });
+    return res.json();
+  } catch {
+    return { status: "error", items: [] };
+  }
+}
+
+export async function getOPhimMovieDetail(slug: string): Promise<OPhimDetailResponse> {
+  try {
+    const res = await fetch(`${BASE_URL}/api/ophim/phim/${slug}`, {
+      next: { revalidate: 300 },
+    });
+    return res.json();
+  } catch {
+    return { status: "error" };
+  }
+}
+
+export async function searchOPhimMovies(query: string): Promise<OPhimListResponse> {
+  try {
+    const res = await fetch(
+      `${BASE_URL}/api/ophim/v1/api/tim-kiem?keyword=${encodeURIComponent(query)}`,
+      { next: { revalidate: 60 } }
+    );
+    return res.json();
+  } catch {
+    return { status: "error", items: [] };
+  }
+}
+
 // --- Fallback utility ---
 
 /**

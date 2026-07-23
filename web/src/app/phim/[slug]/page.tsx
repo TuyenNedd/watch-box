@@ -85,6 +85,13 @@ export default async function MoviePage({ params }: MoviePageProps) {
             </h1>
             <p className="text-lg text-gray-400 mb-4">{movie.origin_name}</p>
 
+            {/* Source badge */}
+            <div className="mb-3">
+              <span className="bg-[#FF6B5E] text-white text-xs font-bold px-2.5 py-1 rounded">
+                Source: PhimApi
+              </span>
+            </div>
+
             {/* Metadata badges */}
             <div className="flex flex-wrap gap-2 mb-5">
               {movie.year && (

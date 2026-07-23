@@ -47,9 +47,12 @@ fun DetailsScreen(
     isLoading: Boolean,
     isFavorite: Boolean,
     progress: PlaybackProgress?,
+    availableServers: List<dev.watchbox.ui.SourcedDetails>,
+    activeServerIndex: Int,
     onPlay: () -> Unit,
     onEpisodeClick: (Int) -> Unit,
     onToggleFavorite: () -> Unit,
+    onSwitchServer: (Int) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -116,6 +119,22 @@ fun DetailsScreen(
                         text = movie.title,
                         style = MaterialTheme.typography.headlineLarge,
                         color = Color.White,
+                    )
+                    // Source badge
+                    val sourceColor = when {
+                        movie.sourceName.contains("PhimAPI", ignoreCase = true) -> Color(0xFFFF6B5E)
+                        movie.sourceName.contains("OPhim", ignoreCase = true) -> Color(0xFF3B82F6)
+                        movie.sourceName.contains("NguonC", ignoreCase = true) -> Color(0xFF10B981)
+                        else -> Color(0xFF6B7280)
+                    }
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = "Source: ${movie.sourceName}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.White,
+                        modifier = Modifier
+                            .background(sourceColor, RoundedCornerShape(4.dp))
+                            .padding(horizontal = 8.dp, vertical = 4.dp),
                     )
                     movie.originalTitle?.let { original ->
                         if (original != movie.title) {
@@ -204,6 +223,41 @@ fun DetailsScreen(
                         style = MaterialTheme.typography.bodyLarge,
                         color = Color.White.copy(alpha = 0.9f),
                     )
+
+                    // Server switch chips
+                    if (availableServers.size > 1) {
+                        Spacer(modifier = Modifier.height(20.dp))
+                        Text(
+                            "Servers",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.White,
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            availableServers.forEachIndexed { index, sourced ->
+                                val chipColor = when (sourced.source) {
+                                    dev.watchbox.ui.SourceFilter.PHIMAPI -> Color(0xFFFF6B5E)
+                                    dev.watchbox.ui.SourceFilter.OPHIM -> Color(0xFF3B82F6)
+                                    dev.watchbox.ui.SourceFilter.NGUONC -> Color(0xFF10B981)
+                                    else -> Coral500
+                                }
+                                val isActive = index == activeServerIndex
+                                AssistChip(
+                                    onClick = { onSwitchServer(index) },
+                                    label = {
+                                        Text(
+                                            sourced.source.label + " Server",
+                                            color = if (isActive) Color.White else Color.White.copy(alpha = 0.7f),
+                                        )
+                                    },
+                                    modifier = if (isActive) Modifier.background(chipColor, RoundedCornerShape(8.dp)) else Modifier,
+                                )
+                            }
+                        }
+                    }
 
                     // Episodes
                     if (details.episodes.size > 1) {

@@ -15,6 +15,7 @@ export interface Movie {
   year: number;
   category: Category[];
   country: Country[];
+  source?: "phimapi" | "ophim" | "nguonc";
 }
 
 export interface MovieDetail {
