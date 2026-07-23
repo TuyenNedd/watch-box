@@ -1,10 +1,77 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-background: #0A0E1A;
+  --color-background-light: #0F1422;
+  --color-card: #1A1F2E;
+  --color-card-hover: #252A3A;
+  --color-accent: #FF6B5E;
+  --color-accent-hover: #FF8577;
+  --color-accent-dark: #E5554A;
+  --color-navy-50: #E8EAF0;
+  --color-navy-100: #C5C9D6;
+  --color-navy-200: #9EA5BB;
+  --color-navy-300: #7780A0;
+  --color-navy-400: #59648C;
+  --color-navy-500: #3B4878;
+  --color-navy-600: #354070;
+  --color-navy-700: #2D3565;
+  --color-navy-800: #262B5B;
+  --color-navy-900: #191B48;
+
+  --animate-fade-in: fadeIn 0.6s ease-out forwards;
+  --animate-slide-up: slideUp 0.6s ease-out forwards;
+  --animate-slide-up-delay: slideUp 0.6s ease-out 0.2s forwards;
+  --animate-shimmer: shimmer 2s infinite linear;
+  --animate-ken-burns: kenBurns 20s ease-in-out infinite alternate;
+
+  @keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    0% { opacity: 0; transform: translateY(30px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  @keyframes kenBurns {
+    0% { transform: scale(1) translate(0, 0); }
+    100% { transform: scale(1.1) translate(-1%, -1%); }
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
 
 body {
   background-color: #0A0E1A;
   color: #ffffff;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0A0E1A;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2D3565;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3B4878;
 }
 
 /* Hide scrollbar for shelves */
@@ -14,4 +81,32 @@ body {
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Skeleton shimmer */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #1A1F2E 25%,
+    #252A3A 50%,
+    #1A1F2E 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite linear;
+}
+
+/* Glass morphism utility */
+.glass {
+  background: rgba(26, 31, 46, 0.6);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Snap scrolling for shelves */
+.snap-x-scroll {
+  scroll-snap-type: x mandatory;
+}
+
+.snap-x-scroll > * {
+  scroll-snap-align: start;
 }

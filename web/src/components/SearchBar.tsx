@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 
 export default function SearchBar() {
   const router = useRouter();
@@ -40,14 +40,14 @@ export default function SearchBar() {
 
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-2xl mx-auto">
-      <div className="relative">
+      <div className="relative group">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
           strokeWidth={2}
           stroke="currentColor"
-          className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+          className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-accent transition-colors"
         >
           <path
             strokeLinecap="round"
@@ -59,8 +59,8 @@ export default function SearchBar() {
           type="text"
           value={query}
           onChange={handleChange}
-          placeholder="Tìm kiếm phim..."
-          className="w-full bg-card border border-white/20 rounded-xl pl-12 pr-4 py-4 text-white placeholder-gray-400 focus:outline-none focus:border-accent transition-colors text-lg"
+          placeholder="Enter keywords to search for movies..."
+          className="w-full bg-white/5 border border-white/10 rounded-2xl pl-14 pr-6 py-5 text-white placeholder-gray-500 focus:outline-none focus:border-accent/50 focus:bg-white/[0.07] focus:shadow-lg focus:shadow-accent/5 transition-all text-lg"
         />
       </div>
     </form>

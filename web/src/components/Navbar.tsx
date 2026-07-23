@@ -1,53 +1,113 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { useState, useRef, useEffect } from "react";
 
 export default function Navbar() {
   const router = useRouter();
-  const [showSearch, setShowSearch] = useState(false);
+  const pathname = usePathname();
+  const [searchExpanded, setSearchExpanded] = useState(false);
   const [query, setQuery] = useState("");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const navLinks = [
+    { href: "/", label: "Home" },
+    { href: "/search?q=phim-le", label: "Movies" },
+    { href: "/search?q=phim-bo", label: "Series" },
+  ];
+
+  useEffect(() => {
+    if (searchExpanded && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [searchExpanded]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (query.trim()) {
       router.push(`/search?q=${encodeURIComponent(query.trim())}`);
-      setShowSearch(false);
+      setSearchExpanded(false);
       setQuery("");
     }
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-b border-white/10">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/70 backdrop-blur-xl border-b border-white/5">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="text-2xl font-bold text-accent">WatchBox</span>
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2 flex-shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-orange-500 flex items-center justify-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-4 h-4 text-white"
+            >
+              <path
+                fillRule="evenodd"
+                d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+          <span className="text-xl font-bold bg-gradient-to-r from-accent to-orange-400 bg-clip-text text-transparent">
+            WatchBox
+          </span>
         </Link>
 
-        <div className="flex items-center gap-4">
-          {showSearch ? (
-            <form onSubmit={handleSearch} className="flex items-center">
+        {/* Desktop Nav Links */}
+        <div className="hidden md:flex items-center gap-1 ml-8">
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`relative px-4 py-2 text-sm font-medium transition-colors group ${
+                pathname === link.href
+                  ? "text-white"
+                  : "text-gray-400 hover:text-white"
+              }`}
+            >
+              {link.label}
+              <span
+                className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-accent rounded-full transition-all duration-300 ${
+                  pathname === link.href
+                    ? "w-4"
+                    : "w-0 group-hover:w-4"
+                }`}
+              />
+            </Link>
+          ))}
+        </div>
+
+        {/* Right side: Search + Mobile menu */}
+        <div className="flex items-center gap-3">
+          {/* Search - Expanding animation */}
+          <div className="relative flex items-center">
+            <form
+              onSubmit={handleSearch}
+              className={`flex items-center overflow-hidden transition-all duration-300 ease-in-out ${
+                searchExpanded
+                  ? "w-48 md:w-72 opacity-100"
+                  : "w-0 opacity-0"
+              }`}
+            >
               <input
+                ref={searchInputRef}
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Tìm phim..."
-                className="bg-card border border-white/20 rounded-lg px-4 py-2 text-sm text-white placeholder-gray-400 focus:outline-none focus:border-accent w-48 md:w-64"
-                autoFocus
+                onBlur={() => {
+                  if (!query) setSearchExpanded(false);
+                }}
+                placeholder="Search movies..."
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-accent/50 focus:bg-white/10 transition-all"
               />
-              <button
-                type="button"
-                onClick={() => setShowSearch(false)}
-                className="ml-2 text-gray-400 hover:text-white"
-              >
-                ✕
-              </button>
             </form>
-          ) : (
             <button
-              onClick={() => setShowSearch(true)}
-              className="text-gray-300 hover:text-white transition-colors"
+              onClick={() => setSearchExpanded(!searchExpanded)}
+              className="p-2 text-gray-400 hover:text-white transition-colors ml-1"
               aria-label="Search"
             >
               <svg
@@ -56,7 +116,7 @@ export default function Navbar() {
                 viewBox="0 0 24 24"
                 strokeWidth={2}
                 stroke="currentColor"
-                className="w-6 h-6"
+                className="w-5 h-5"
               >
                 <path
                   strokeLinecap="round"
@@ -65,7 +125,53 @@ export default function Navbar() {
                 />
               </svg>
             </button>
-          )}
+          </div>
+
+          {/* Mobile hamburger */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2 text-gray-400 hover:text-white transition-colors"
+            aria-label="Menu"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="w-5 h-5"
+            >
+              {mobileMenuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              )}
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile menu */}
+      <div
+        className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out bg-background/95 backdrop-blur-xl border-b border-white/5 ${
+          mobileMenuOpen ? "max-h-48 opacity-100" : "max-h-0 opacity-0"
+        }`}
+      >
+        <div className="px-4 py-3 space-y-1">
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              onClick={() => setMobileMenuOpen(false)}
+              className={`block px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                pathname === link.href
+                  ? "text-white bg-white/5"
+                  : "text-gray-400 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              {link.label}
+            </Link>
+          ))}
         </div>
       </div>
     </nav>

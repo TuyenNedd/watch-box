@@ -6,8 +6,8 @@ import Navbar from "@/components/Navbar";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "WatchBox - Xem Phim Online",
-  description: "Xem phim online miễn phí chất lượng cao",
+  title: "WatchBox - Watch Movies Online",
+  description: "Watch movies online for free in high quality",
 };
 
 export default function RootLayout({
@@ -16,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi">
+    <html lang="en" className="scroll-smooth">
       <body className={`${inter.className} bg-background min-h-screen`}>
         <Navbar />
         <main>{children}</main>
