@@ -17,4 +17,3 @@ dependencyResolutionManagement {
 rootProject.name = "WatchBox"
 include(":shared")
 include(":androidApp")
-include(":webApp")

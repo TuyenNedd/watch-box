@@ -1,14 +1,6 @@
 {
-  "outputDirectory": "web-dist",
-  "buildCommand": "",
-  "rewrites": [
-    {
-      "source": "/img/:path*",
-      "destination": "https://phimimg.com/:path*"
-    },
-    {
-      "source": "/ophim-img/:path*",
-      "destination": "https://img.ophim.live/:path*"
-    }
-  ]
+  "buildCommand": "cd web && npm run build",
+  "outputDirectory": "web/.next",
+  "framework": "nextjs",
+  "installCommand": "cd web && npm install"
 }
