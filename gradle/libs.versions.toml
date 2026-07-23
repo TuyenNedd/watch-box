@@ -4,7 +4,8 @@ kotlin = "2.1.20"
 compose-bom = "2025.03.01"
 androidx-core = "1.15.0"
 activity-compose = "1.10.1"
-tv-compose = "1.0.1"
+tv-foundation = "1.0.0"
+tv-material = "1.1.0"
 navigation = "2.8.9"
 lifecycle = "2.8.7"
 coroutines = "1.10.1"
@@ -20,8 +21,8 @@ androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = 
 androidx-compose-ui = { module = "androidx.compose.ui:ui" }
 androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
-androidx-tv-foundation = { module = "androidx.tv:tv-foundation", version.ref = "tv-compose" }
-androidx-tv-material = { module = "androidx.tv:tv-material", version.ref = "tv-compose" }
+androidx-tv-foundation = { module = "androidx.tv:tv-foundation", version.ref = "tv-foundation" }
+androidx-tv-material = { module = "androidx.tv:tv-material", version.ref = "tv-material" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
