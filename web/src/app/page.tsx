@@ -19,36 +19,56 @@ async function getMoviesPage2(): Promise<MovieListResponse> {
   return res.json();
 }
 
-async function getSingleMovies(): Promise<MovieListResponse> {
+interface V1ApiResponse {
+  data?: {
+    items?: Movie[];
+  };
+  items?: Movie[];
+}
+
+async function getSingleMovies(): Promise<V1ApiResponse> {
   const res = await fetch(
-    "https://phimapi.com/v1/api/danh-sach/phim-le?page=1&limit=12",
+    "https://phimapi.com/v1/api/danh-sach/phim-le?page=1",
     { next: { revalidate: 300 } }
   );
   return res.json();
 }
 
-async function getSeriesMovies(): Promise<MovieListResponse> {
+async function getSeriesMovies(): Promise<V1ApiResponse> {
   const res = await fetch(
-    "https://phimapi.com/v1/api/danh-sach/phim-bo?page=1&limit=12",
+    "https://phimapi.com/v1/api/danh-sach/phim-bo?page=1",
     { next: { revalidate: 300 } }
   );
   return res.json();
+}
+
+async function getAnimationMovies(): Promise<V1ApiResponse> {
+  const res = await fetch(
+    "https://phimapi.com/v1/api/danh-sach/hoat-hinh?page=1",
+    { next: { revalidate: 300 } }
+  );
+  return res.json();
+}
+
+function extractItems(data: V1ApiResponse): Movie[] {
+  return data?.data?.items || data?.items || [];
 }
 
 export default async function Home() {
-  const [data1, data2, singleData, seriesData] = await Promise.all([
+  const [data1, data2, singleData, seriesData, animationData] = await Promise.all([
     getMovies(),
     getMoviesPage2(),
-    getSingleMovies().catch(() => ({ items: [], status: "", pagination: { totalItems: 0, totalItemsPerPage: 0, currentPage: 0, totalPages: 0 } })),
-    getSeriesMovies().catch(() => ({ items: [], status: "", pagination: { totalItems: 0, totalItemsPerPage: 0, currentPage: 0, totalPages: 0 } })),
+    getSingleMovies().catch(() => ({} as V1ApiResponse)),
+    getSeriesMovies().catch(() => ({} as V1ApiResponse)),
+    getAnimationMovies().catch(() => ({} as V1ApiResponse)),
   ]);
 
   const allMovies = data1.items || [];
   const moreMovies = data2.items || [];
 
-  // Try to get items from v1 API format (data.items) or direct items
-  const singleMovies: Movie[] = (singleData as unknown as { data?: { items?: Movie[] } })?.data?.items || singleData.items || [];
-  const seriesMovies: Movie[] = (seriesData as unknown as { data?: { items?: Movie[] } })?.data?.items || seriesData.items || [];
+  const singleMovies = extractItems(singleData).slice(0, 12);
+  const seriesMovies = extractItems(seriesData).slice(0, 12);
+  const animationMovies = extractItems(animationData).slice(0, 12);
 
   const heroMovie = allMovies[0];
   const newMovies = allMovies.slice(1, 13);
@@ -59,15 +79,18 @@ export default async function Home() {
     <div className="pt-16">
       {heroMovie && <HeroSection movie={heroMovie} />}
       <div className="max-w-7xl mx-auto py-10">
-        <MovieShelf title="New Releases" movies={newMovies} seeAllHref="/search?q=new" />
-        <MovieShelf title="Trending Now" movies={trendingMovies} seeAllHref="/search?q=trending" />
+        <MovieShelf title="New Releases" movies={newMovies} seeAllHref="/danh-sach/phim-le" />
+        <MovieShelf title="Trending Now" movies={trendingMovies} seeAllHref="/danh-sach/phim-bo" />
         {singleMovies.length > 0 && (
-          <MovieShelf title="Latest Movies" movies={singleMovies} seeAllHref="/search?q=phim-le" />
+          <MovieShelf title="Movies" movies={singleMovies} seeAllHref="/danh-sach/phim-le" />
         )}
         {seriesMovies.length > 0 && (
-          <MovieShelf title="Ongoing Series" movies={seriesMovies} seeAllHref="/search?q=phim-bo" />
+          <MovieShelf title="Series" movies={seriesMovies} seeAllHref="/danh-sach/phim-bo" />
         )}
-        <MovieShelf title="You May Like" movies={moreToWatch} seeAllHref="/search?q=recommended" />
+        {animationMovies.length > 0 && (
+          <MovieShelf title="Animation" movies={animationMovies} seeAllHref="/danh-sach/hoat-hinh" />
+        )}
+        <MovieShelf title="You May Like" movies={moreToWatch} seeAllHref="/danh-sach/tv-shows" />
       </div>
       <Footer />
     </div>

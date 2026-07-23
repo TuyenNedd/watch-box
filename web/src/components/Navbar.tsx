@@ -14,8 +14,12 @@ export default function Navbar() {
 
   const navLinks = [
     { href: "/", label: "Home" },
-    { href: "/search?q=phim-le", label: "Movies" },
-    { href: "/search?q=phim-bo", label: "Series" },
+    { href: "/danh-sach/phim-le", label: "Movies" },
+    { href: "/danh-sach/phim-bo", label: "Series" },
+    { href: "/danh-sach/hoat-hinh", label: "Animation" },
+    { href: "/danh-sach/tv-shows", label: "TV Shows" },
+    { href: "/the-loai", label: "Genres" },
+    { href: "/quoc-gia", label: "Countries" },
   ];
 
   useEffect(() => {
@@ -58,13 +62,13 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop Nav Links */}
-        <div className="hidden md:flex items-center gap-1 ml-8">
+        <div className="hidden lg:flex items-center gap-1 ml-8">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className={`relative px-4 py-2 text-sm font-medium transition-colors group ${
-                pathname === link.href
+              className={`relative px-3 py-2 text-sm font-medium transition-colors group ${
+                pathname === link.href || pathname.startsWith(link.href + "/")
                   ? "text-white"
                   : "text-gray-400 hover:text-white"
               }`}
@@ -72,7 +76,7 @@ export default function Navbar() {
               {link.label}
               <span
                 className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-accent rounded-full transition-all duration-300 ${
-                  pathname === link.href
+                  pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href))
                     ? "w-4"
                     : "w-0 group-hover:w-4"
                 }`}
@@ -130,7 +134,7 @@ export default function Navbar() {
           {/* Mobile hamburger */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-gray-400 hover:text-white transition-colors"
+            className="lg:hidden p-2 text-gray-400 hover:text-white transition-colors"
             aria-label="Menu"
           >
             <svg
@@ -153,8 +157,8 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       <div
-        className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out bg-background/95 backdrop-blur-xl border-b border-white/5 ${
-          mobileMenuOpen ? "max-h-48 opacity-100" : "max-h-0 opacity-0"
+        className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out bg-background/95 backdrop-blur-xl border-b border-white/5 ${
+          mobileMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
         }`}
       >
         <div className="px-4 py-3 space-y-1">
@@ -164,7 +168,7 @@ export default function Navbar() {
               href={link.href}
               onClick={() => setMobileMenuOpen(false)}
               className={`block px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                pathname === link.href
+                pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href))
                   ? "text-white bg-white/5"
                   : "text-gray-400 hover:text-white hover:bg-white/5"
               }`}

@@ -118,12 +118,28 @@ export default async function MoviePage({ params }: MoviePageProps) {
             {movie.category && movie.category.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-5">
                 {movie.category.map((cat) => (
-                  <span
+                  <Link
                     key={cat.id}
+                    href={`/the-loai/${cat.slug}`}
                     className="border border-white/10 bg-white/5 text-gray-300 px-3 py-1.5 rounded-full text-sm hover:border-accent/30 hover:text-accent transition-colors"
                   >
                     {cat.name}
-                  </span>
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            {/* Countries */}
+            {movie.country && movie.country.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-5">
+                {movie.country.map((c) => (
+                  <Link
+                    key={c.id}
+                    href={`/quoc-gia/${c.slug}`}
+                    className="border border-white/10 bg-white/5 text-gray-300 px-3 py-1.5 rounded-full text-sm hover:border-accent/30 hover:text-accent transition-colors"
+                  >
+                    {c.name}
+                  </Link>
                 ))}
               </div>
             )}
