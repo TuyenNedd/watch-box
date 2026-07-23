@@ -120,7 +120,7 @@ fun PlayerScreen(
     DisposableEffect(player) {
         val listener = object : Player.Listener {
             override fun onPlayerError(error: PlaybackException) {
-                errorMessage = "Không thể phát video. Vui lòng thử lại."
+                errorMessage = "Unable to play video. Please try again."
             }
 
             override fun onPlaybackStateChanged(playbackState: Int) {

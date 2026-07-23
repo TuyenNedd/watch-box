@@ -1,50 +1,50 @@
-# Watch Box 📺
+# Watch Box
 
-**Ứng dụng Android TV xem phim miễn phí từ nguồn Creative Commons / Open License**
+**Free and open-licensed movie streaming app for Android TV**
 
-Watch Box là ứng dụng native Android TV được thiết kế cho TV Box, điều khiển hoàn toàn bằng remote, hiển thị phim có bản quyền mở (Creative Commons) với hỗ trợ Vietsub.
-
----
-
-## Tính năng
-
-- 🎬 **Khám phá phim** — Trang chủ với hero banner, shelves phim nổi bật
-- 🔍 **Tìm kiếm** — Hỗ trợ tiếng Việt không dấu (accent-insensitive)
-- 📖 **Chi tiết phim** — Poster, mô tả, metadata, nguồn & license rõ ràng
-- ❤️ **Yêu thích** — Lưu phim yêu thích offline
-- ▶️ **Xem tiếp** — Tự động lưu tiến trình, xem tiếp từ lần dừng trước
-- 🎥 **Trình phát Media3** — Hỗ trợ MP4/HLS, phụ đề, điều khiển D-pad
-- 🌐 **Internet Archive** — Tìm kiếm phim có license từ kho cộng đồng
-- 🇻🇳 **Giao diện tiếng Việt** — Toàn bộ UI bằng tiếng Việt
+Watch Box is a native Android TV application designed for TV Boxes. It is fully controllable via remote/D-pad and streams only Creative Commons / openly licensed movies with Vietnamese subtitle support.
 
 ---
 
-## Ảnh chụp màn hình
+## Features
 
-> Ứng dụng được tối ưu cho TV với giao diện cinematic tối (navy), accent coral, typography lớn và focus rõ ràng qua D-pad.
+- **Discover movies** — Home screen with hero banner and horizontally scrollable shelves
+- **Search** — Vietnamese accent-insensitive search (diacritics removed automatically)
+- **Movie details** — Poster, synopsis, metadata, source & license clearly displayed
+- **Favorites** — Save favorite movies offline
+- **Continue watching** — Automatically saves progress, resume from where you left off
+- **Media3 player** — MP4/HLS playback with subtitle support and D-pad controls
+- **Internet Archive** — Search licensed movies from the community library
+- **Vietnamese UI** — App interface in Vietnamese for end users
 
 ---
 
-## Cài đặt
+## Screenshots
 
-### Từ Release (khuyến nghị)
+> The app is optimized for TV with a cinematic dark theme (navy background), coral accent, large typography, and clear D-pad focus indicators.
 
-1. Tải file `watch-box-v1.0.0-release.apk` từ [Releases](https://github.com/TuyenNedd/watch-box/releases)
-2. Copy vào USB hoặc dùng `adb install`:
+---
+
+## Installation
+
+### From Release (recommended)
+
+1. Download `watch-box-v1.0.0-release.apk` from [Releases](https://github.com/TuyenNedd/watch-box/releases)
+2. Copy to USB or install via ADB:
    ```bash
    adb install watch-box-v1.0.0-release.apk
    ```
-3. Mở ứng dụng **Watch Box** từ TV launcher
+3. Open **Watch Box** from the TV launcher
 
-### Build từ source
+### Build from source
 
-**Yêu cầu:** JDK 17, Android SDK (API 35, Build Tools 35.0.0)
+**Requirements:** JDK 17, Android SDK (API 35, Build Tools 35.0.0)
 
 ```bash
 git clone https://github.com/TuyenNedd/watch-box.git
 cd watch-box
 
-# Cấu hình SDK path
+# Configure SDK path
 echo "sdk.dir=/path/to/your/android-sdk" > local.properties
 
 # Build debug APK
@@ -56,23 +56,23 @@ export JAVA_HOME=/path/to/jdk-17
 
 ---
 
-## Phim có sẵn
+## Available Movies
 
-| Phim | Nguồn | License |
-|------|--------|---------|
+| Movie | Source | License |
+|-------|--------|---------|
 | Big Buck Bunny | Blender Foundation | CC BY 3.0 |
 | Sintel | Blender Foundation | CC BY 3.0 |
 | Tears of Steel | Blender Foundation | CC BY 3.0 |
 | Elephant's Dream | Blender Foundation | CC BY 2.5 |
-| + Internet Archive | Kho cộng đồng | Nhiều loại CC |
+| + Internet Archive | Community library | Various CC |
 
 ---
 
-## Kiến trúc
+## Architecture
 
 ```
 app/src/main/java/dev/watchbox/tv/
-├── WatchBoxApplication.kt          # App container (DI thủ công)
+├── WatchBoxApplication.kt          # App container (manual DI)
 ├── MainActivity.kt                 # TV Activity + Compose entry
 ├── core/
 │   ├── model/Movie.kt              # Domain models
@@ -80,13 +80,13 @@ app/src/main/java/dev/watchbox/tv/
 ├── data/
 │   ├── catalog/
 │   │   ├── CatalogSource.kt        # Provider interface
-│   │   ├── CuratedCatalogSource.kt # 4 phim CC seed
+│   │   ├── CuratedCatalogSource.kt # 4 CC seed movies
 │   │   ├── InternetArchiveClient.kt# HTTP + JSON DTOs
 │   │   ├── InternetArchiveMapper.kt# Defensive mapping + stream ranking
 │   │   └── MovieRepository.kt      # Merge/dedupe/fallback
 │   └── local/
-│       ├── LibraryStore.kt          # Interface favorites/progress
-│       └── PreferencesLibraryStore.kt # SharedPreferences impl
+│       ├── LibraryStore.kt          # Favorites/progress interface
+│       └── PreferencesLibraryStore.kt # SharedPreferences implementation
 ├── ui/
 │   ├── WatchBoxViewModel.kt        # StateFlow state machine
 │   ├── WatchBoxApp.kt              # Navigation routes
@@ -102,7 +102,7 @@ app/src/main/java/dev/watchbox/tv/
 
 ## Tech Stack
 
-| Thành phần | Công nghệ |
+| Component | Technology |
 |-----------|-----------|
 | Language | Kotlin 2.1.20 |
 | UI | Jetpack Compose for TV (tv-material 1.1.0) |
@@ -134,29 +134,29 @@ export JAVA_HOME=/path/to/jdk-17
 
 ---
 
-## Chính sách nội dung
+## Content Policy
 
-Watch Box **chỉ** sử dụng nội dung có bản quyền mở:
-- Phim curated: Creative Commons từ Blender Foundation
-- Internet Archive: Chỉ records có `licenseurl` rõ ràng
-- Mỗi phim hiển thị nguồn và license trên màn hình chi tiết
-- Không scrape, không nguồn pirate, không quảng cáo
+Watch Box **only** uses openly licensed content:
+- Curated movies: Creative Commons from Blender Foundation
+- Internet Archive: Only records with an explicit `licenseurl`
+- Each movie displays its source and license on the details screen
+- No scraping, no pirated sources, no ads
 
 ---
 
-## Đóng góp
+## Contributing
 
-1. Fork repository
-2. Tạo branch: `git checkout -b feat/your-feature`
-3. Commit: `git commit -m "feat: add your feature"`
+1. Fork the repository
+2. Create a branch: `git checkout -b feat/your-feature`
+3. Commit changes: `git commit -m "feat: add your feature"`
 4. Push: `git push origin feat/your-feature`
-5. Mở Pull Request
+5. Open a Pull Request
 
 ---
 
 ## License
 
-MIT License — xem [LICENSE](LICENSE) để biết chi tiết.
+MIT License — see [LICENSE](LICENSE) for details.
 
 ---
 

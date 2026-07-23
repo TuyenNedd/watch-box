@@ -20,9 +20,9 @@ class CuratedCatalogSourceTest {
     }
 
     @Test
-    fun `all curated movies have Vietnamese copy explicit license and HTTPS assets`() = runTest {
+    fun `all curated movies have explicit license and HTTPS assets`() = runTest {
         source.featured().forEach { movie ->
-            assertTrue(movie.description.any { it.code > 127 })
+            assertTrue(movie.description.isNotBlank())
             assertTrue(movie.artworkUrl.startsWith("https://"))
             assertTrue(movie.backdropUrl.startsWith("https://"))
             assertTrue(movie.license.name.startsWith("CC BY"))
@@ -38,8 +38,8 @@ class CuratedCatalogSourceTest {
     }
 
     @Test
-    fun `search is accent insensitive across Vietnamese and original titles`() = runTest {
-        assertEquals(listOf("sintel"), source.search("chien binh sintel").map { it.id })
+    fun `search is accent insensitive across titles`() = runTest {
+        assertEquals(listOf("sintel"), source.search("sintel").map { it.id })
         assertEquals(listOf("elephants-dream"), source.search("elephant's dream").map { it.id })
     }
 

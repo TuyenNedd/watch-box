@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Navigation -->
+    <string name="nav_home">Trang chủ</string>
+    <string name="nav_search">Tìm kiếm</string>
+    <string name="nav_library">Thư viện</string>
+
+    <!-- Actions -->
+    <string name="watch_now">Xem ngay</string>
+    <string name="details">Chi tiết</string>
+    <string name="retry">Thử lại</string>
+    <string name="back">Quay lại</string>
+    <string name="add_favorite">Yêu thích</string>
+    <string name="remove_favorite">Bỏ yêu thích</string>
+
+    <!-- Library -->
+    <string name="favorites">Yêu thích</string>
+    <string name="continue_watching">Xem tiếp</string>
+    <string name="no_favorites">Chưa có phim yêu thích.</string>
+    <string name="no_continue_watching">Chưa có phim đang xem.</string>
+
+    <!-- States -->
+    <string name="loading">Đang tải…</string>
+    <string name="no_results">Không có kết quả</string>
+    <string name="connection_error">Lỗi kết nối</string>
+    <string name="offline_message">Không có kết nối mạng</string>
+    <string name="player_error">Không thể phát video. Vui lòng thử lại.</string>
+    <string name="search_hint">Nhập tên phim…</string>
+
+    <!-- Details -->
+    <string name="source_label">Nguồn</string>
+    <string name="license_label">Giấy phép</string>
+</resources>

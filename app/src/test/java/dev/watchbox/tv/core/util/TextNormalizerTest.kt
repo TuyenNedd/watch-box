@@ -30,7 +30,7 @@ class TextNormalizerTest {
         id = "movie",
         title = title,
         originalTitle = originalTitle,
-        description = "Phim mở",
+        description = "Open movie",
         artworkUrl = "https://example.com/poster.jpg",
         backdropUrl = "https://example.com/backdrop.jpg",
         year = 2006,

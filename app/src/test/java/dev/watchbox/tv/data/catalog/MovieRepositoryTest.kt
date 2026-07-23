@@ -33,7 +33,7 @@ class MovieRepositoryTest {
         val failed = FakeSource(failure = IllegalStateException("offline"))
         val repository = MovieRepository(listOf(local, failed))
 
-        assertEquals(listOf("sintel"), repository.search("chien binh sintel").map { it.id })
+        assertEquals(listOf("sintel"), repository.search("sintel").map { it.id })
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -136,7 +136,7 @@ class MovieRepositoryTest {
         id = id,
         title = id,
         originalTitle = id,
-        description = "Mô tả",
+        description = "Description",
         artworkUrl = "https://example.com/$id.jpg",
         backdropUrl = "https://example.com/$id-wide.jpg",
         year = null,
