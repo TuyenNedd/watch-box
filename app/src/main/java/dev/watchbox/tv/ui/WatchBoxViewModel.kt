@@ -205,10 +205,10 @@ class WatchBoxViewModel(
     ): List<MovieShelf> {
         val shelves = mutableListOf<MovieShelf>()
         if (featured.isNotEmpty()) {
-            shelves += MovieShelf("Featured Open Movies", featured)
+            shelves += MovieShelf("New Movies", featured)
         }
         if (archive.isNotEmpty()) {
-            shelves += MovieShelf("Community Library", archive)
+            shelves += MovieShelf("Open Movies", archive)
         }
         val continueWatching = (featured + archive)
             .filter { it.id in progressMap }

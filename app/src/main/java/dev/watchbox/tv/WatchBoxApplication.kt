@@ -8,6 +8,8 @@ import dev.watchbox.tv.data.catalog.InternetArchiveCatalogSource
 import dev.watchbox.tv.data.catalog.InternetArchiveClient
 import dev.watchbox.tv.data.catalog.InternetArchiveMapper
 import dev.watchbox.tv.data.catalog.MovieRepository
+import dev.watchbox.tv.data.catalog.PhimApiCatalogSource
+import dev.watchbox.tv.data.catalog.PhimApiClient
 import dev.watchbox.tv.data.local.LibraryStore
 import dev.watchbox.tv.data.local.PreferencesLibraryStore
 import okhttp3.OkHttpClient
@@ -29,10 +31,12 @@ class WatchBoxApplication : Application() {
             .readTimeout(30, TimeUnit.SECONDS)
             .build()
 
+        val phimApiClient = PhimApiClient(httpClient)
         val archiveClient = InternetArchiveClient(httpClient)
         val mapper = InternetArchiveMapper()
 
         val sources: List<CatalogSource> = listOf(
+            PhimApiCatalogSource(phimApiClient),
             CuratedCatalogSource(),
             InternetArchiveCatalogSource(archiveClient, mapper),
         )
