@@ -19,7 +19,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import dev.watchbox.player.PlatformPlayerView
+import dev.watchbox.ui.screens.BrowseMenuScreen
+import dev.watchbox.ui.screens.BrowseScreen
+import dev.watchbox.ui.screens.CountriesScreen
 import dev.watchbox.ui.screens.DetailsScreen
+import dev.watchbox.ui.screens.GenresScreen
 import dev.watchbox.ui.screens.HomeScreen
 import dev.watchbox.ui.screens.LibraryScreen
 import dev.watchbox.ui.screens.SearchScreen
@@ -28,7 +32,9 @@ import dev.watchbox.ui.theme.Navy900
 import dev.watchbox.ui.theme.WatchBoxTheme
 
 enum class Screen {
-    HOME, SEARCH, LIBRARY, DETAILS, PLAYER
+    HOME, BROWSE, SEARCH, LIBRARY, DETAILS, PLAYER,
+    BROWSE_TYPE, BROWSE_GENRE, BROWSE_COUNTRY,
+    GENRES_LIST, COUNTRIES_LIST
 }
 
 @Composable
@@ -40,6 +46,9 @@ fun WatchBoxApp(
     var currentScreen by remember { mutableStateOf(Screen.HOME) }
     var selectedMovieId by remember { mutableStateOf("") }
     var selectedEpisodeIndex by remember { mutableStateOf(0) }
+    var browseType by remember { mutableStateOf("") }
+    var browseGenreSlug by remember { mutableStateOf("") }
+    var browseCountrySlug by remember { mutableStateOf("") }
 
     WatchBoxTheme {
         Surface(
@@ -90,6 +99,87 @@ fun WatchBoxApp(
                         onBack = { currentScreen = Screen.HOME },
                     )
                 }
+                Screen.BROWSE_TYPE -> {
+                    BrowseScreen(
+                        browseState = uiState.browseState,
+                        onMovieClick = { id ->
+                            selectedMovieId = id
+                            viewModel.loadDetails(id)
+                            currentScreen = Screen.DETAILS
+                        },
+                        onPreviousPage = {
+                            val prev = uiState.browseState.currentPage - 1
+                            if (prev >= 1) viewModel.loadByType(browseType, prev)
+                        },
+                        onNextPage = {
+                            val next = uiState.browseState.currentPage + 1
+                            if (next <= uiState.browseState.totalPages) viewModel.loadByType(browseType, next)
+                        },
+                        onBack = { currentScreen = Screen.BROWSE },
+                    )
+                }
+                Screen.BROWSE_GENRE -> {
+                    BrowseScreen(
+                        browseState = uiState.browseState,
+                        onMovieClick = { id ->
+                            selectedMovieId = id
+                            viewModel.loadDetails(id)
+                            currentScreen = Screen.DETAILS
+                        },
+                        onPreviousPage = {
+                            val prev = uiState.browseState.currentPage - 1
+                            if (prev >= 1) viewModel.loadByGenre(browseGenreSlug, prev)
+                        },
+                        onNextPage = {
+                            val next = uiState.browseState.currentPage + 1
+                            if (next <= uiState.browseState.totalPages) viewModel.loadByGenre(browseGenreSlug, next)
+                        },
+                        onBack = { currentScreen = Screen.GENRES_LIST },
+                    )
+                }
+                Screen.BROWSE_COUNTRY -> {
+                    BrowseScreen(
+                        browseState = uiState.browseState,
+                        onMovieClick = { id ->
+                            selectedMovieId = id
+                            viewModel.loadDetails(id)
+                            currentScreen = Screen.DETAILS
+                        },
+                        onPreviousPage = {
+                            val prev = uiState.browseState.currentPage - 1
+                            if (prev >= 1) viewModel.loadByCountry(browseCountrySlug, prev)
+                        },
+                        onNextPage = {
+                            val next = uiState.browseState.currentPage + 1
+                            if (next <= uiState.browseState.totalPages) viewModel.loadByCountry(browseCountrySlug, next)
+                        },
+                        onBack = { currentScreen = Screen.COUNTRIES_LIST },
+                    )
+                }
+                Screen.GENRES_LIST -> {
+                    GenresScreen(
+                        genres = uiState.genres,
+                        isLoading = uiState.isLoadingGenres,
+                        onGenreClick = { slug ->
+                            browseGenreSlug = slug
+                            viewModel.loadByGenre(slug)
+                            currentScreen = Screen.BROWSE_GENRE
+                        },
+                        onBack = { currentScreen = Screen.BROWSE },
+                    )
+                }
+                Screen.COUNTRIES_LIST -> {
+                    CountriesScreen(
+                        countries = uiState.countries,
+                        isLoading = uiState.isLoadingCountries,
+                        onCountryClick = { slug ->
+                            browseCountrySlug = slug
+                            viewModel.loadByCountry(slug)
+                            currentScreen = Screen.BROWSE_COUNTRY
+                        },
+                        onBack = { currentScreen = Screen.BROWSE },
+                    )
+                }
                 else -> {
                     Scaffold(
                         bottomBar = {
@@ -116,6 +206,27 @@ fun WatchBoxApp(
                                         currentScreen = Screen.PLAYER
                                     },
                                     onRetry = { viewModel.retry() },
+                                    onSeeAll = { type ->
+                                        browseType = type
+                                        viewModel.loadByType(type)
+                                        currentScreen = Screen.BROWSE_TYPE
+                                    },
+                                    modifier = Modifier.fillMaxSize(),
+                                )
+                                Screen.BROWSE -> BrowseMenuScreen(
+                                    onTypeClick = { type ->
+                                        browseType = type
+                                        viewModel.loadByType(type)
+                                        currentScreen = Screen.BROWSE_TYPE
+                                    },
+                                    onGenresClick = {
+                                        viewModel.loadGenres()
+                                        currentScreen = Screen.GENRES_LIST
+                                    },
+                                    onCountriesClick = {
+                                        viewModel.loadCountries()
+                                        currentScreen = Screen.COUNTRIES_LIST
+                                    },
                                     modifier = Modifier.fillMaxSize(),
                                 )
                                 Screen.SEARCH -> SearchScreen(
@@ -167,6 +278,17 @@ private fun WatchBoxBottomBar(
             selected = currentScreen == Screen.HOME,
             onClick = { onNavigate(Screen.HOME) },
             label = { Text("Home") },
+            icon = {},
+            colors = NavigationBarItemDefaults.colors(
+                selectedTextColor = Coral500,
+                unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                indicatorColor = Navy900,
+            ),
+        )
+        NavigationBarItem(
+            selected = currentScreen == Screen.BROWSE,
+            onClick = { onNavigate(Screen.BROWSE) },
+            label = { Text("Browse") },
             icon = {},
             colors = NavigationBarItemDefaults.colors(
                 selectedTextColor = Coral500,

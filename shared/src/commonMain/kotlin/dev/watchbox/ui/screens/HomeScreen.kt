@@ -13,7 +13,7 @@ import dev.watchbox.ui.components.EmptyState
 import dev.watchbox.ui.components.ErrorState
 import dev.watchbox.ui.components.FeaturedHero
 import dev.watchbox.ui.components.LoadingShimmer
-import dev.watchbox.ui.components.MovieShelf
+import dev.watchbox.ui.components.MovieShelfWithSeeAll
 
 @Composable
 fun HomeScreen(
@@ -21,6 +21,7 @@ fun HomeScreen(
     onMovieClick: (String) -> Unit,
     onPlayClick: (String) -> Unit,
     onRetry: () -> Unit,
+    onSeeAll: (type: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     when {
@@ -48,10 +49,16 @@ fun HomeScreen(
                     }
                 }
                 items(items = uiState.shelves, key = { it.title }) { shelf ->
-                    MovieShelf(
+                    val seeAllType = when (shelf.title) {
+                        "New Movies" -> "phim-moi-cap-nhat"
+                        "Featured" -> "phim-le"
+                        else -> null
+                    }
+                    MovieShelfWithSeeAll(
                         title = shelf.title,
                         movies = shelf.movies,
                         onMovieClick = onMovieClick,
+                        onSeeAll = seeAllType?.let { type -> { onSeeAll(type) } },
                     )
                     Spacer(modifier = Modifier.height(20.dp))
                 }

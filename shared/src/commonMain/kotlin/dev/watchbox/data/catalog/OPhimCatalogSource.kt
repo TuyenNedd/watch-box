@@ -33,6 +33,19 @@ class OPhimCatalogSource(
         return mapDetails(movieDto)
     }
 
+    override suspend fun listByType(type: String, page: Int): PaginatedResult =
+        PaginatedResult("", emptyList(), 1, 1)
+
+    override suspend fun genres(): List<CategoryItem> = emptyList()
+
+    override suspend fun countries(): List<CategoryItem> = emptyList()
+
+    override suspend fun listByGenre(slug: String, page: Int): PaginatedResult =
+        PaginatedResult("", emptyList(), 1, 1)
+
+    override suspend fun listByCountry(slug: String, page: Int): PaginatedResult =
+        PaginatedResult("", emptyList(), 1, 1)
+
     private fun OPhimItemDto.toMovie(): Movie? {
         if (slug.isBlank() || name.isBlank()) return null
         return Movie(

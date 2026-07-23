@@ -56,6 +56,66 @@ class MovieRepository(
 
     suspend fun details(id: String): MovieDetails? = detailsResult(id).data
 
+    suspend fun listByType(type: String, page: Int): PaginatedResult {
+        for (source in sources) {
+            try {
+                val result = source.listByType(type, page)
+                if (result.movies.isNotEmpty()) return result
+            } catch (_: CancellationException) {
+                throw CancellationException()
+            } catch (_: Exception) { /* try next */ }
+        }
+        return PaginatedResult("", emptyList(), 1, 1)
+    }
+
+    suspend fun genres(): List<CategoryItem> {
+        for (source in sources) {
+            try {
+                val result = source.genres()
+                if (result.isNotEmpty()) return result
+            } catch (_: CancellationException) {
+                throw CancellationException()
+            } catch (_: Exception) { /* try next */ }
+        }
+        return emptyList()
+    }
+
+    suspend fun countries(): List<CategoryItem> {
+        for (source in sources) {
+            try {
+                val result = source.countries()
+                if (result.isNotEmpty()) return result
+            } catch (_: CancellationException) {
+                throw CancellationException()
+            } catch (_: Exception) { /* try next */ }
+        }
+        return emptyList()
+    }
+
+    suspend fun listByGenre(slug: String, page: Int): PaginatedResult {
+        for (source in sources) {
+            try {
+                val result = source.listByGenre(slug, page)
+                if (result.movies.isNotEmpty()) return result
+            } catch (_: CancellationException) {
+                throw CancellationException()
+            } catch (_: Exception) { /* try next */ }
+        }
+        return PaginatedResult("", emptyList(), 1, 1)
+    }
+
+    suspend fun listByCountry(slug: String, page: Int): PaginatedResult {
+        for (source in sources) {
+            try {
+                val result = source.listByCountry(slug, page)
+                if (result.movies.isNotEmpty()) return result
+            } catch (_: CancellationException) {
+                throw CancellationException()
+            } catch (_: Exception) { /* try next */ }
+        }
+        return PaginatedResult("", emptyList(), 1, 1)
+    }
+
     private fun mergeStates(
         load: suspend (CatalogSource) -> List<Movie>,
     ): Flow<CatalogResult<List<Movie>>> = flow {

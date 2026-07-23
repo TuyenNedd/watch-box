@@ -89,6 +89,50 @@ data class PhimApiSearchDataDto(
     val items: List<PhimApiItemDto> = emptyList(),
 )
 
+@Serializable
+data class PhimApiPaginationDto(
+    val totalItems: Int = 0,
+    val totalItemsPerPage: Int = 24,
+    val currentPage: Int = 1,
+    val totalPages: Int = 1,
+)
+
+@Serializable
+data class PhimApiPaginationParamsDto(
+    val pagination: PhimApiPaginationDto = PhimApiPaginationDto(),
+)
+
+@Serializable
+data class PhimApiPaginatedDataDto(
+    val titlePage: String = "",
+    val items: List<PhimApiItemDto> = emptyList(),
+    val params: PhimApiPaginationParamsDto = PhimApiPaginationParamsDto(),
+)
+
+@Serializable
+data class PhimApiPaginatedResponseDto(
+    val status: Boolean = false,
+    val data: PhimApiPaginatedDataDto = PhimApiPaginatedDataDto(),
+)
+
+@Serializable
+data class PhimApiCategoryItemDto(
+    @SerialName("_id") val id: String = "",
+    val name: String = "",
+    val slug: String = "",
+)
+
+@Serializable
+data class PhimApiCategoryListDataDto(
+    val items: List<PhimApiCategoryItemDto> = emptyList(),
+)
+
+@Serializable
+data class PhimApiCategoryListResponseDto(
+    val status: String = "",
+    val data: PhimApiCategoryListDataDto = PhimApiCategoryListDataDto(),
+)
+
 class PhimApiClient(
     private val httpClient: HttpClient,
     private val baseUrl: String = "https://phimapi.com",
@@ -112,6 +156,40 @@ class PhimApiClient(
         val body = httpClient.get("$baseUrl/v1/api/tim-kiem") {
             parameter("keyword", keyword)
             parameter("limit", limit.toString())
+        }.bodyAsText()
+        return json.decodeFromString(body)
+    }
+
+    suspend fun listByType(type: String, page: Int = 1): PhimApiPaginatedResponseDto {
+        if (type.isBlank()) return PhimApiPaginatedResponseDto()
+        val body = httpClient.get("$baseUrl/v1/api/danh-sach/$type") {
+            parameter("page", page.toString())
+        }.bodyAsText()
+        return json.decodeFromString(body)
+    }
+
+    suspend fun listGenres(): PhimApiCategoryListResponseDto {
+        val body = httpClient.get("$baseUrl/the-loai").bodyAsText()
+        return json.decodeFromString(body)
+    }
+
+    suspend fun listCountries(): PhimApiCategoryListResponseDto {
+        val body = httpClient.get("$baseUrl/quoc-gia").bodyAsText()
+        return json.decodeFromString(body)
+    }
+
+    suspend fun listByGenre(slug: String, page: Int = 1): PhimApiPaginatedResponseDto {
+        if (slug.isBlank()) return PhimApiPaginatedResponseDto()
+        val body = httpClient.get("$baseUrl/v1/api/the-loai/$slug") {
+            parameter("page", page.toString())
+        }.bodyAsText()
+        return json.decodeFromString(body)
+    }
+
+    suspend fun listByCountry(slug: String, page: Int = 1): PhimApiPaginatedResponseDto {
+        if (slug.isBlank()) return PhimApiPaginatedResponseDto()
+        val body = httpClient.get("$baseUrl/v1/api/quoc-gia/$slug") {
+            parameter("page", page.toString())
         }.bodyAsText()
         return json.decodeFromString(body)
     }

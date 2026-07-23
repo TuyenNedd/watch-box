@@ -4,7 +4,9 @@ import dev.watchbox.core.model.Movie
 import dev.watchbox.core.model.MovieDetails
 import dev.watchbox.core.model.PlaybackProgress
 import dev.watchbox.core.util.matchesSearch
+import dev.watchbox.data.catalog.CategoryItem
 import dev.watchbox.data.catalog.MovieRepository
+import dev.watchbox.data.catalog.PaginatedResult
 import dev.watchbox.data.local.LibraryStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -26,6 +28,15 @@ data class MovieShelf(
     val movies: List<Movie>,
 )
 
+data class BrowseState(
+    val title: String = "",
+    val movies: List<Movie> = emptyList(),
+    val currentPage: Int = 1,
+    val totalPages: Int = 1,
+    val isLoading: Boolean = false,
+    val error: String? = null,
+)
+
 data class WatchBoxUiState(
     val shelves: List<MovieShelf> = emptyList(),
     val searchResults: List<Movie> = emptyList(),
@@ -37,6 +48,11 @@ data class WatchBoxUiState(
     val isLoadingDetails: Boolean = false,
     val error: String? = null,
     val searchError: String? = null,
+    val browseState: BrowseState = BrowseState(),
+    val genres: List<CategoryItem> = emptyList(),
+    val countries: List<CategoryItem> = emptyList(),
+    val isLoadingGenres: Boolean = false,
+    val isLoadingCountries: Boolean = false,
 )
 
 class WatchBoxViewModel(
@@ -54,6 +70,11 @@ class WatchBoxViewModel(
         val isLoadingDetails: Boolean = false,
         val error: String? = null,
         val searchError: String? = null,
+        val browseState: BrowseState = BrowseState(),
+        val genres: List<CategoryItem> = emptyList(),
+        val countries: List<CategoryItem> = emptyList(),
+        val isLoadingGenres: Boolean = false,
+        val isLoadingCountries: Boolean = false,
     )
 
     private val internal = MutableStateFlow(InternalState())
@@ -77,6 +98,11 @@ class WatchBoxViewModel(
             isLoadingDetails = state.isLoadingDetails,
             error = state.error,
             searchError = state.searchError,
+            browseState = state.browseState,
+            genres = state.genres,
+            countries = state.countries,
+            isLoadingGenres = state.isLoadingGenres,
+            isLoadingCountries = state.isLoadingCountries,
         )
     }.stateIn(scope, SharingStarted.Eagerly, WatchBoxUiState())
 
@@ -102,6 +128,117 @@ class WatchBoxViewModel(
                         error = "Unable to load movie details. Please try again.",
                     )
                 }
+            }
+        }
+    }
+
+    fun loadByType(type: String, page: Int = 1) {
+        scope.launch {
+            internal.update { it.copy(browseState = it.browseState.copy(isLoading = true, error = null)) }
+            try {
+                val result = repository.listByType(type, page)
+                internal.update {
+                    it.copy(
+                        browseState = BrowseState(
+                            title = result.title,
+                            movies = result.movies,
+                            currentPage = result.currentPage,
+                            totalPages = result.totalPages,
+                            isLoading = false,
+                        )
+                    )
+                }
+            } catch (_: Exception) {
+                internal.update {
+                    it.copy(
+                        browseState = it.browseState.copy(
+                            isLoading = false,
+                            error = "Failed to load. Please try again.",
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    fun loadByGenre(slug: String, page: Int = 1) {
+        scope.launch {
+            internal.update { it.copy(browseState = it.browseState.copy(isLoading = true, error = null)) }
+            try {
+                val result = repository.listByGenre(slug, page)
+                internal.update {
+                    it.copy(
+                        browseState = BrowseState(
+                            title = result.title,
+                            movies = result.movies,
+                            currentPage = result.currentPage,
+                            totalPages = result.totalPages,
+                            isLoading = false,
+                        )
+                    )
+                }
+            } catch (_: Exception) {
+                internal.update {
+                    it.copy(
+                        browseState = it.browseState.copy(
+                            isLoading = false,
+                            error = "Failed to load. Please try again.",
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    fun loadByCountry(slug: String, page: Int = 1) {
+        scope.launch {
+            internal.update { it.copy(browseState = it.browseState.copy(isLoading = true, error = null)) }
+            try {
+                val result = repository.listByCountry(slug, page)
+                internal.update {
+                    it.copy(
+                        browseState = BrowseState(
+                            title = result.title,
+                            movies = result.movies,
+                            currentPage = result.currentPage,
+                            totalPages = result.totalPages,
+                            isLoading = false,
+                        )
+                    )
+                }
+            } catch (_: Exception) {
+                internal.update {
+                    it.copy(
+                        browseState = it.browseState.copy(
+                            isLoading = false,
+                            error = "Failed to load. Please try again.",
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    fun loadGenres() {
+        scope.launch {
+            internal.update { it.copy(isLoadingGenres = true) }
+            try {
+                val genres = repository.genres()
+                internal.update { it.copy(genres = genres, isLoadingGenres = false) }
+            } catch (_: Exception) {
+                internal.update { it.copy(isLoadingGenres = false) }
+            }
+        }
+    }
+
+    fun loadCountries() {
+        scope.launch {
+            internal.update { it.copy(isLoadingCountries = true) }
+            try {
+                val countries = repository.countries()
+                internal.update { it.copy(countries = countries, isLoadingCountries = false) }
+            } catch (_: Exception) {
+                internal.update { it.copy(isLoadingCountries = false) }
             }
         }
     }

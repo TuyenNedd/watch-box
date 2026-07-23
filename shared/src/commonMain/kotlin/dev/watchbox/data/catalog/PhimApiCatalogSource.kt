@@ -33,6 +33,54 @@ class PhimApiCatalogSource(
         return mapDetails(movieDto, response.episodes)
     }
 
+    override suspend fun listByType(type: String, page: Int): PaginatedResult {
+        val response = client.listByType(type, page)
+        if (!response.status) return PaginatedResult("", emptyList(), 1, 1)
+        val data = response.data
+        return PaginatedResult(
+            title = data.titlePage,
+            movies = data.items.mapNotNull { it.toMovie() },
+            currentPage = data.params.pagination.currentPage,
+            totalPages = data.params.pagination.totalPages,
+        )
+    }
+
+    override suspend fun genres(): List<CategoryItem> {
+        val response = client.listGenres()
+        if (response.status != "success") return emptyList()
+        return response.data.items.map { CategoryItem(id = it.id, name = it.name, slug = it.slug) }
+    }
+
+    override suspend fun countries(): List<CategoryItem> {
+        val response = client.listCountries()
+        if (response.status != "success") return emptyList()
+        return response.data.items.map { CategoryItem(id = it.id, name = it.name, slug = it.slug) }
+    }
+
+    override suspend fun listByGenre(slug: String, page: Int): PaginatedResult {
+        val response = client.listByGenre(slug, page)
+        if (!response.status) return PaginatedResult("", emptyList(), 1, 1)
+        val data = response.data
+        return PaginatedResult(
+            title = data.titlePage,
+            movies = data.items.mapNotNull { it.toMovie() },
+            currentPage = data.params.pagination.currentPage,
+            totalPages = data.params.pagination.totalPages,
+        )
+    }
+
+    override suspend fun listByCountry(slug: String, page: Int): PaginatedResult {
+        val response = client.listByCountry(slug, page)
+        if (!response.status) return PaginatedResult("", emptyList(), 1, 1)
+        val data = response.data
+        return PaginatedResult(
+            title = data.titlePage,
+            movies = data.items.mapNotNull { it.toMovie() },
+            currentPage = data.params.pagination.currentPage,
+            totalPages = data.params.pagination.totalPages,
+        )
+    }
+
     private fun PhimApiItemDto.toMovie(): Movie? {
         if (slug.isBlank() || name.isBlank()) return null
         return Movie(
