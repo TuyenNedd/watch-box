@@ -2,6 +2,8 @@ package dev.watchbox
 
 import dev.watchbox.data.catalog.CatalogSource
 import dev.watchbox.data.catalog.MovieRepository
+import dev.watchbox.data.catalog.NguonCCatalogSource
+import dev.watchbox.data.catalog.NguonCClient
 import dev.watchbox.data.catalog.OPhimCatalogSource
 import dev.watchbox.data.catalog.OPhimClient
 import dev.watchbox.data.catalog.PhimApiCatalogSource
@@ -16,10 +18,12 @@ object WatchBoxFactory {
         val httpClient = createHttpClient()
         val phimApiClient = PhimApiClient(httpClient)
         val oPhimClient = OPhimClient(httpClient)
+        val nguonCClient = NguonCClient(httpClient)
 
         val sources: List<CatalogSource> = listOf(
             PhimApiCatalogSource(phimApiClient),
             OPhimCatalogSource(oPhimClient),
+            NguonCCatalogSource(nguonCClient),
         )
         val repository = MovieRepository(sources)
         return WatchBoxViewModel(repository, libraryStore, scope)
