@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -33,7 +35,9 @@ fun FeaturedHero(
     modifier: Modifier = Modifier,
 ) {
     Box(
-        modifier = modifier.fillMaxWidth().height(360.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .aspectRatio(16f / 9f),
     ) {
         AsyncImage(
             model = movie.backdropUrl,
@@ -42,78 +46,78 @@ fun FeaturedHero(
             modifier = Modifier.fillMaxSize(),
         )
         Box(
-            modifier = Modifier.fillMaxSize().background(
-                Brush.horizontalGradient(
-                    colors = listOf(
-                        Color.Black.copy(alpha = 0.85f),
-                        Color.Black.copy(alpha = 0.4f),
-                        Color.Transparent,
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            Color.Black.copy(alpha = 0.8f),
+                        ),
+                        startY = 100f,
                     ),
                 ),
-            ),
-        )
-        Box(
-            modifier = Modifier.fillMaxSize().background(
-                Brush.verticalGradient(
-                    colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f)),
-                    startY = 200f,
-                ),
-            ),
         )
         Column(
             modifier = Modifier
                 .align(Alignment.BottomStart)
-                .padding(start = 24.dp, bottom = 32.dp, end = 24.dp)
-                .fillMaxWidth(0.6f),
+                .padding(start = 16.dp, bottom = 16.dp, end = 16.dp)
+                .fillMaxWidth(),
         ) {
             Text(
                 text = movie.title,
-                style = MaterialTheme.typography.displayMedium,
+                style = MaterialTheme.typography.headlineLarge,
                 color = Color.White,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 movie.year?.let {
-                    Text(it.toString(), style = MaterialTheme.typography.bodyMedium, color = Color.White.copy(alpha = 0.8f))
+                    Text(
+                        it.toString(),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White.copy(alpha = 0.8f),
+                    )
                 }
                 movie.quality?.let { quality ->
                     Text(
                         text = quality,
                         style = MaterialTheme.typography.labelSmall,
                         color = Color.White,
-                        modifier = Modifier.background(Color(0xFFE65100), RoundedCornerShape(4.dp))
+                        modifier = Modifier
+                            .background(Color(0xFFE65100), RoundedCornerShape(4.dp))
                             .padding(horizontal = 6.dp, vertical = 2.dp),
                     )
                 }
                 movie.lang?.let { lang ->
                     val label = when {
                         lang.contains("Vietsub", ignoreCase = true) -> "Vietsub"
-                        lang.contains("Thuyết Minh", ignoreCase = true) -> "TM"
+                        lang.contains("Thuy\u1EBFt Minh", ignoreCase = true) -> "TM"
                         else -> lang
                     }
                     Text(
                         text = label,
                         style = MaterialTheme.typography.labelSmall,
                         color = Color.White,
-                        modifier = Modifier.background(Color(0xFF1976D2), RoundedCornerShape(4.dp))
+                        modifier = Modifier
+                            .background(Color(0xFF1976D2), RoundedCornerShape(4.dp))
                             .padding(horizontal = 6.dp, vertical = 2.dp),
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = movie.description,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodySmall,
                 color = Color.White.copy(alpha = 0.9f),
-                maxLines = 3,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Button(onClick = onPlay) { Text("Watch Now") }
-                Button(onClick = onDetails) { Text("Details") }
+                OutlinedButton(onClick = onDetails) { Text("Details") }
             }
         }
     }

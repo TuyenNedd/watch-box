@@ -44,7 +44,7 @@ fun HomeScreen(
                             onPlay = { onPlayClick(featuredMovie.id) },
                             onDetails = { onMovieClick(featuredMovie.id) },
                         )
-                        Spacer(modifier = Modifier.height(32.dp))
+                        Spacer(modifier = Modifier.height(24.dp))
                     }
                 }
                 items(items = uiState.shelves, key = { it.title }) { shelf ->
@@ -53,7 +53,7 @@ fun HomeScreen(
                         movies = shelf.movies,
                         onMovieClick = onMovieClick,
                     )
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
                 }
             }
         }

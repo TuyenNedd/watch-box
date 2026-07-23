@@ -2,6 +2,7 @@ package dev.watchbox.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,12 +15,15 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -33,7 +37,14 @@ fun MovieCard(
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier.width(180.dp).clickable { onClick() },
+        modifier = modifier
+            .width(150.dp)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = ripple(bounded = true),
+                role = Role.Button,
+                onClick = onClick,
+            ),
     ) {
         Card(
             shape = RoundedCornerShape(8.dp),
@@ -55,8 +66,8 @@ fun MovieCard(
                     movie.lang?.let { lang ->
                         val label = when {
                             lang.contains("Vietsub", ignoreCase = true) -> "Vietsub"
-                            lang.contains("Thuyết Minh", ignoreCase = true) -> "TM"
-                            lang.contains("Lồng Tiếng", ignoreCase = true) -> "LT"
+                            lang.contains("Thuy\u1EBFt Minh", ignoreCase = true) -> "TM"
+                            lang.contains("L\u1ED3ng Ti\u1EBFng", ignoreCase = true) -> "LT"
                             else -> lang
                         }
                         Text(

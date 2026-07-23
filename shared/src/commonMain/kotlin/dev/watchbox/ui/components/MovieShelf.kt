@@ -25,11 +25,11 @@ fun MovieShelf(
             text = title,
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.padding(start = 24.dp, bottom = 12.dp),
+            modifier = Modifier.padding(start = 16.dp, bottom = 12.dp),
         )
         LazyRow(
-            contentPadding = PaddingValues(horizontal = 24.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             items(items = movies, key = { it.id }) { movie ->
                 MovieCard(movie = movie, onClick = { onMovieClick(movie.id) })
