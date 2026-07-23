@@ -69,7 +69,7 @@ module.exports = webpackEmptyAsyncContext;
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 "use strict";
-module.exports = __webpack_require__.p + "382857bb8e1da32ba447.wasm";
+module.exports = __webpack_require__.p + "37f527b4517523476cf2.wasm";
 
 /***/ }),
 

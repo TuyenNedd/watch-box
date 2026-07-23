@@ -6,6 +6,7 @@ import dev.watchbox.core.model.Movie
 import dev.watchbox.core.model.MovieDetails
 import dev.watchbox.core.model.PlaybackSource
 import dev.watchbox.core.model.SubtitleTrack
+import dev.watchbox.core.util.resolveImageUrl
 
 class PhimApiCatalogSource(
     private val client: PhimApiClient,
@@ -39,8 +40,8 @@ class PhimApiCatalogSource(
             title = name,
             originalTitle = originName.ifBlank { null },
             description = originName.ifBlank { name },
-            artworkUrl = posterUrl,
-            backdropUrl = thumbUrl.ifBlank { posterUrl },
+            artworkUrl = resolveImageUrl(posterUrl),
+            backdropUrl = resolveImageUrl(thumbUrl.ifBlank { posterUrl }),
             year = year,
             runtimeMinutes = parseRuntime(time),
             sourceName = SOURCE_NAME,
@@ -91,8 +92,8 @@ class PhimApiCatalogSource(
                 title = movie.name,
                 originalTitle = movie.originName.ifBlank { null },
                 description = description,
-                artworkUrl = movie.posterUrl,
-                backdropUrl = movie.thumbUrl.ifBlank { movie.posterUrl },
+                artworkUrl = resolveImageUrl(movie.posterUrl),
+                backdropUrl = resolveImageUrl(movie.thumbUrl.ifBlank { movie.posterUrl }),
                 year = movie.year,
                 runtimeMinutes = null,
                 sourceName = SOURCE_NAME,

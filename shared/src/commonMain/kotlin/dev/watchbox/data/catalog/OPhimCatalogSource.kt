@@ -40,8 +40,8 @@ class OPhimCatalogSource(
             title = name,
             originalTitle = originName.ifBlank { null },
             description = originName.ifBlank { name },
-            artworkUrl = resolveImageUrl(posterUrl),
-            backdropUrl = resolveImageUrl(thumbUrl.ifBlank { posterUrl }),
+            artworkUrl = resolveOPhimImageUrl(posterUrl),
+            backdropUrl = resolveOPhimImageUrl(thumbUrl.ifBlank { posterUrl }),
             year = year,
             runtimeMinutes = parseRuntime(time),
             sourceName = SOURCE_NAME,
@@ -85,8 +85,8 @@ class OPhimCatalogSource(
                 title = movie.name,
                 originalTitle = movie.originName.ifBlank { null },
                 description = description,
-                artworkUrl = resolveImageUrl(movie.posterUrl),
-                backdropUrl = resolveImageUrl(movie.thumbUrl.ifBlank { movie.posterUrl }),
+                artworkUrl = resolveOPhimImageUrl(movie.posterUrl),
+                backdropUrl = resolveOPhimImageUrl(movie.thumbUrl.ifBlank { movie.posterUrl }),
                 year = movie.year,
                 runtimeMinutes = null,
                 sourceName = SOURCE_NAME,
@@ -129,11 +129,15 @@ class OPhimCatalogSource(
         private val htmlTagRegex = Regex("<[^>]*>")
         private val runtimeRegex = Regex("(\\d+)\\s*[Pp]hút")
 
-        fun resolveImageUrl(url: String): String {
+        fun resolveOPhimImageUrl(url: String): String {
             if (url.isBlank()) return ""
-            if (url.startsWith("http://") || url.startsWith("https://")) return url
-            val path = url.removePrefix("/")
-            return "$IMAGE_CDN_PREFIX$path"
+            val fullUrl = if (url.startsWith("http://") || url.startsWith("https://")) {
+                url
+            } else {
+                val path = url.removePrefix("/")
+                "$IMAGE_CDN_PREFIX$path"
+            }
+            return dev.watchbox.core.util.resolveImageUrl(fullUrl)
         }
 
         fun stripHtml(html: String): String =
