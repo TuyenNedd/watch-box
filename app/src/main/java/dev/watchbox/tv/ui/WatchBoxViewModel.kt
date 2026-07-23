@@ -103,7 +103,7 @@ class WatchBoxViewModel(
                 internal.update {
                     it.copy(
                         isLoadingDetails = false,
-                        error = "Không thể tải thông tin phim. Vui lòng thử lại.",
+                        error = "Unable to load movie details. Please try again.",
                     )
                 }
             }
@@ -145,7 +145,7 @@ class WatchBoxViewModel(
                 internal.update {
                     it.copy(
                         isLoading = false,
-                        error = "Không thể kết nối máy chủ. Kiểm tra mạng và thử lại.",
+                        error = "Unable to connect. Check your network and try again.",
                     )
                 }
                 return@launch
@@ -188,7 +188,7 @@ class WatchBoxViewModel(
                         internal.update {
                             it.copy(
                                 isSearching = false,
-                                searchError = "Tìm kiếm thất bại. Vui lòng thử lại.",
+                                searchError = "Search failed. Please try again.",
                             )
                         }
                     }
@@ -205,16 +205,16 @@ class WatchBoxViewModel(
     ): List<MovieShelf> {
         val shelves = mutableListOf<MovieShelf>()
         if (featured.isNotEmpty()) {
-            shelves += MovieShelf("Phim mở nổi bật", featured)
+            shelves += MovieShelf("Featured Open Movies", featured)
         }
         if (archive.isNotEmpty()) {
-            shelves += MovieShelf("Kho phim cộng đồng", archive)
+            shelves += MovieShelf("Community Library", archive)
         }
         val continueWatching = (featured + archive)
             .filter { it.id in progressMap }
             .distinctBy { it.id }
         if (continueWatching.isNotEmpty()) {
-            shelves += MovieShelf("Xem tiếp", continueWatching)
+            shelves += MovieShelf("Continue Watching", continueWatching)
         }
         return shelves
     }

@@ -103,7 +103,7 @@ class InternetArchiveMapperTest {
     private fun document(id: String, title: String, licenseUrl: String?) = ArchiveSearchDocumentDto(
         identifier = JsonPrimitive(id),
         title = JsonPrimitive(title),
-        description = JsonPrimitive("Mô tả phim"),
+        description = JsonPrimitive("Movie description"),
         year = JsonPrimitive(2020),
         licenseUrl = licenseUrl?.let(::JsonPrimitive),
     )
@@ -116,7 +116,7 @@ class InternetArchiveMapperTest {
         metadata = ArchiveMetadataDto(
             identifier = JsonPrimitive(identifier),
             title = JsonPrimitive("Licensed Film"),
-            description = JsonPrimitive("Một phim được cấp phép mở"),
+            description = JsonPrimitive("An open-licensed movie"),
             date = JsonPrimitive("2020-01-01"),
             licenseUrl = licenseUrl?.let(::JsonPrimitive),
         ),

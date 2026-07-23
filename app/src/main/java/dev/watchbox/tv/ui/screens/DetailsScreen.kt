@@ -116,7 +116,7 @@ fun DetailsScreen(
                                 SuggestionChip(onClick = {}) { Text(it.toString()) }
                             }
                             movie.runtimeMinutes?.let {
-                                SuggestionChip(onClick = {}) { Text("${it} phút") }
+                                SuggestionChip(onClick = {}) { Text("${it} min") }
                             }
                             SuggestionChip(onClick = {}) { Text(movie.sourceName) }
                             SuggestionChip(onClick = {}) { Text(movie.license.name) }

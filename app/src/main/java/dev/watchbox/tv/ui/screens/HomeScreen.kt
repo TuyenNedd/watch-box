@@ -31,7 +31,7 @@ fun HomeScreen(
             modifier = modifier,
         )
         uiState.shelves.isEmpty() -> EmptyState(
-            message = "Không có phim nào.",
+            message = "No movies found.",
             modifier = modifier,
         )
         else -> {

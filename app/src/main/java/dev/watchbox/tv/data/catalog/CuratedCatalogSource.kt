@@ -34,9 +34,9 @@ class CuratedCatalogSource : CatalogSource {
         val curatedDetails = listOf(
             detail(
                 id = "big-buck-bunny",
-                title = "Thỏ Bự Tinh Nghịch",
+                title = "Big Buck Bunny",
                 originalTitle = "Big Buck Bunny",
-                description = "Chú thỏ hiền lành dùng trí thông minh để đối phó với ba kẻ chuyên bắt nạt trong khu rừng.",
+                description = "A gentle rabbit uses wit and courage to deal with three bullying rodents in the forest.",
                 year = 2008,
                 runtimeMinutes = 10,
                 archiveId = "BigBuckBunny_328",
@@ -45,9 +45,9 @@ class CuratedCatalogSource : CatalogSource {
             ),
             detail(
                 id = "sintel",
-                title = "Chiến Binh Sintel",
+                title = "Sintel",
                 originalTitle = "Sintel",
-                description = "Một nữ chiến binh trẻ vượt qua hành trình khắc nghiệt để tìm lại người bạn rồng đã mất.",
+                description = "A young warrior embarks on a harsh journey to find her lost baby dragon companion.",
                 year = 2010,
                 runtimeMinutes = 15,
                 archiveId = "Sintel",
@@ -56,9 +56,9 @@ class CuratedCatalogSource : CatalogSource {
             ),
             detail(
                 id = "tears-of-steel",
-                title = "Nước Mắt Thép",
+                title = "Tears of Steel",
                 originalTitle = "Tears of Steel",
-                description = "Một nhóm chiến binh và nhà khoa học tìm cách cứu Amsterdam khỏi đội quân rô-bốt hủy diệt.",
+                description = "A group of warriors and a scientist fight to save Amsterdam from an army of destructive robots.",
                 year = 2012,
                 runtimeMinutes = 12,
                 archiveId = "Tears-of-Steel",
@@ -67,9 +67,9 @@ class CuratedCatalogSource : CatalogSource {
             ),
             detail(
                 id = "elephants-dream",
-                title = "Giấc Mơ Của Voi",
+                title = "Elephant's Dream",
                 originalTitle = "Elephant's Dream",
-                description = "Hai nhân vật khám phá một cỗ máy khổng lồ, kỳ lạ trong phim hoạt hình mở đầu tiên của Blender.",
+                description = "Two characters explore a vast and strange machine in Blender's first open-source animated film.",
                 year = 2006,
                 runtimeMinutes = 11,
                 archiveId = "ElephantsDream",

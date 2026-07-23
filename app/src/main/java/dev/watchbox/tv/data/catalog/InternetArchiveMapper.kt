@@ -23,7 +23,7 @@ class InternetArchiveMapper {
         val movie = movie(
             id = id,
             title = title,
-            description = metadata.description.text().orEmpty().ifBlank { "Phim mở từ Internet Archive." },
+            description = metadata.description.text().orEmpty().ifBlank { "Open movie from Internet Archive." },
             yearValue = metadata.date.text(),
             licenseUrl = licenseUrl,
         )
@@ -49,7 +49,7 @@ class InternetArchiveMapper {
             SubtitleTrack(
                 url = downloadUrl(id, name),
                 language = "vi",
-                label = "Tiếng Việt",
+                label = "Vietnamese",
                 mimeType = if (lower.endsWith(".vtt")) "text/vtt" else "application/x-subrip",
             )
         }
@@ -63,7 +63,7 @@ class InternetArchiveMapper {
         return movie(
             id = id,
             title = title,
-            description = document.description.text().orEmpty().ifBlank { "Phim mở từ Internet Archive." },
+            description = document.description.text().orEmpty().ifBlank { "Open movie from Internet Archive." },
             yearValue = document.year.text(),
             licenseUrl = licenseUrl,
         )
@@ -146,7 +146,7 @@ class InternetArchiveMapper {
             "/by-nc/" in lower -> "CC BY-NC"
             "/by/" in lower -> "CC BY"
             "publicdomain" in lower || "zero" in lower -> "Public Domain"
-            else -> "Giấy phép mở"
+            else -> "Open License"
         }
         val version = Regex("/(\\d+\\.\\d+)/?").find(lower)?.groupValues?.get(1)
         return if (version == null || variant == "Public Domain") variant else "$variant $version"

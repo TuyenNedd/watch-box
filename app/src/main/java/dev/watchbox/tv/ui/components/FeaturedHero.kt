@@ -99,7 +99,7 @@ fun FeaturedHero(
                 }
                 movie.runtimeMinutes?.let {
                     Text(
-                        text = "${it} phút",
+                        text = "${it} min",
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White.copy(alpha = 0.8f),
                     )
